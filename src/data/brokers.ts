@@ -18,6 +18,7 @@ export type Ticket = {
   createdBy: string;
   createdAt: string;
   updatedAt: string;
+  isDev?: boolean;
 };
 
 export const brokers: Broker[] = [
