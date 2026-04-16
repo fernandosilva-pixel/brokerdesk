@@ -42,6 +42,7 @@ function App() {
     });
 
     return filtered;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm]);
 
   return (

@@ -48,6 +48,7 @@ export default function TicketCard({
 
   useEffect(() => {
     loadTickets();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [broker.nome, currentDate]);
 
   const loadTickets = async () => {
