@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  LayoutDashboard, FileText, CheckSquare,
+  LayoutDashboard, Code2, CheckSquare,
   MessageCircle, Settings, ChevronLeft, ChevronRight,
 } from 'lucide-react';
 
@@ -15,7 +15,7 @@ interface SidebarProps {
 
 const navItems: { id: View; label: string; Icon: React.ElementType }[] = [
   { id: 'dashboard', label: 'Dashboard', Icon: LayoutDashboard },
-  { id: 'demandas', label: 'Demandas', Icon: FileText },
+  { id: 'demandas', label: 'Demandas Tech', Icon: Code2 },
   { id: 'rotina', label: 'Rotina Diária', Icon: CheckSquare },
   { id: 'whatsapp', label: 'Alertas WhatsApp', Icon: MessageCircle },
 ];
