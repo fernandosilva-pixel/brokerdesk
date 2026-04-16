@@ -1,227 +1,157 @@
 import React, { useState, useMemo } from 'react';
-import { Broker, Demand, DemandStatus, FilterType, DateRange } from './types';
-import { initialBrokers, OPERATORS, nextId } from './data/mockData';
-import Header from './components/Header';
-import KPIRow from './components/KPIRow';
-import FilterRow from './components/FilterRow';
-import BrokerGrid from './components/BrokerGrid';
-import NewDemandModal from './components/NewDemandModal';
-import BrokerDrawer from './components/BrokerDrawer';
-import OperatorsModal from './components/OperatorsModal';
-import Toast from './components/Toast';
+import { FileText, User, LogOut, UserCheck } from 'lucide-react';
+import { brokers } from './data/brokers';
+import TicketCard from './components/TicketCard';
+import SearchBar from './components/SearchBar';
+import DailyTabs from './components/DailyTabs';
+import HighPriorityAlert from './components/HighPriorityAlert';
+import AssignedTicketsModal from './components/AssignedTicketsModal';
+import PendingTicketsModal from './components/PendingTicketsModal';
 
-export interface AppState {
-  brokers: Broker[];
-  filter: FilterType;
-  dateRange: DateRange;
-  search: string;
-}
+function App() {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showHighPriorityAlert, setShowHighPriorityAlert] = useState(true);
+  const [selectedBrokerForModal, setSelectedBrokerForModal] = useState<string | null>(null);
+  const [showAssignedTicketsModal, setShowAssignedTicketsModal] = useState(false);
+  const [showPendingTicketsModal, setShowPendingTicketsModal] = useState(false);
+  const [currentUser] = useState({ email: 'usuario@mybroker.com' });
+  const [currentDate, setCurrentDate] = useState(() => new Date().toISOString().split('T')[0]);
 
-export default function App() {
-  const [brokers, setBrokers] = useState<Broker[]>(initialBrokers);
-  const [filter, setFilter] = useState<FilterType>('todos');
-  const [dateRange, setDateRange] = useState<DateRange>('hoje');
-  const [search, setSearch] = useState('');
+  const highPriorityBrokers = ['Hiove', 'T3X Global'];
+  const pendingTicketsBrokers = ['Hiove', 'T3X Global', 'Binix Pro'];
+  const pendingTicketsCount = 5;
+  const assignedTicketsCount = 2;
 
-  // Modals / Drawer
-  const [newDemandOpen, setNewDemandOpen] = useState(false);
-  const [newDemandBrokerId, setNewDemandBrokerId] = useState<string | null>(null);
-  const [drawerBrokerId, setDrawerBrokerId] = useState<string | null>(null);
-  const [operatorsOpen, setOperatorsOpen] = useState(false);
-  const [toast, setToast] = useState<{ msg: string; visible: boolean }>({ msg: '', visible: false });
+  const highPriorityTickets = [
+    { brokerName: 'Hiove', ticketTitle: 'Problema no sistema de pagamentos', priority: 'Alta' as const, assignedTo: 'João Silva' },
+    { brokerName: 'T3X Global', ticketTitle: 'Atualização de sistema', priority: 'Média' as const, assignedTo: 'Maria Santos' },
+  ];
 
-  const showToast = (msg: string) => {
-    setToast({ msg, visible: true });
-    setTimeout(() => setToast({ msg, visible: false }), 2800);
-  };
+  const filteredAndSortedBrokers = useMemo(() => {
+    let filtered = brokers.filter(broker =>
+      broker.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      broker.responsavel.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
-  // Filtered brokers for the grid
-  const filteredBrokers = useMemo(() => {
-    let list = brokers;
-    if (search) list = list.filter(b => b.name.toLowerCase().includes(search.toLowerCase()));
-    if (filter !== 'todos') {
-      list = list.filter(b => {
-        const d = b.demands;
-        const today = '2026-04-16';
-        if (filter === 'pendente')    return d.some(x => x.status === 'pendente');
-        if (filter === 'observacao')  return d.some(x => x.status === 'observacao');
-        if (filter === 'semretorno')  return d.some(x => x.status === 'semretorno');
-        if (filter === 'critica')     return d.some(x => x.priority === 'critical' && x.status !== 'resolvida' && x.status !== 'cancelada');
-        if (filter === 'atrasada')    return d.some(x => x.isOverdue);
-        if (filter === 'followup')    return d.some(x => x.followup && x.followup.startsWith(today));
-        return true;
-      });
-    }
-    return list;
-  }, [brokers, search, filter]);
+    filtered = filtered.sort((a, b) => {
+      const aHasHighPriority = highPriorityBrokers.includes(a.nome);
+      const bHasHighPriority = highPriorityBrokers.includes(b.nome);
+      if (aHasHighPriority && !bHasHighPriority) return -1;
+      if (!aHasHighPriority && bHasHighPriority) return 1;
+      return a.nome.localeCompare(b.nome);
+    });
 
-  // KPI computations
-  const kpis = useMemo(() => {
-    const all = brokers.flatMap(b => b.demands);
-    const today = '2026-04-16';
-    return {
-      totalBrokers: brokers.length,
-      pendentes:    all.filter(d => d.status === 'pendente').length,
-      observacao:   all.filter(d => d.status === 'observacao').length,
-      semRetorno:   all.filter(d => d.status === 'semretorno').length,
-      atrasadas:    all.filter(d => d.isOverdue).length,
-      resolvidas:   all.filter(d => d.status === 'resolvida').length,
-      followupHoje: all.filter(d => d.followup && d.followup.startsWith(today)).length,
-      andamento:    all.filter(d => d.status === 'andamento').length,
-    };
-  }, [brokers]);
-
-  // Filter counts
-  const filterCounts = useMemo(() => {
-    const all = brokers.flatMap(b => b.demands);
-    const today = '2026-04-16';
-    return {
-      todos:      all.length,
-      pendente:   all.filter(d => d.status === 'pendente').length,
-      observacao: all.filter(d => d.status === 'observacao').length,
-      semretorno: all.filter(d => d.status === 'semretorno').length,
-      critica:    all.filter(d => d.priority === 'critical' && d.status !== 'resolvida').length,
-      atrasada:   all.filter(d => d.isOverdue).length,
-      followup:   all.filter(d => d.followup && d.followup.startsWith(today)).length,
-    };
-  }, [brokers]);
-
-  // Handlers
-  const openNewDemand = (brokerId?: string) => {
-    setNewDemandBrokerId(brokerId || null);
-    setNewDemandOpen(true);
-  };
-
-  const openDrawer = (brokerId: string) => setDrawerBrokerId(brokerId);
-  const closeDrawer = () => setDrawerBrokerId(null);
-
-  const drawerBroker = useMemo(
-    () => brokers.find(b => b.id === drawerBrokerId) || null,
-    [brokers, drawerBrokerId]
-  );
-
-  const handleSaveDemand = (data: Partial<Demand> & { brokerId: string }) => {
-    setBrokers(prev => prev.map(b => {
-      if (b.id !== data.brokerId) return b;
-      const newDemand: Demand = {
-        id: nextId(),
-        title: data.title || 'Nova demanda',
-        description: data.description || '',
-        category: data.category || 'Outros',
-        priority: data.priority || 'medium',
-        status: data.status || 'pendente',
-        contact: data.contact || '—',
-        whatsapp: data.whatsapp || '—',
-        operator: data.operator || b.operator,
-        opened: '2026-04-16',
-        deadline: data.deadline || '2026-04-23',
-        followup: data.followup || null,
-        internalNotes: data.internalNotes || '',
-        history: [{ time: '16/04 agora', text: `Demanda criada por ${data.operator || b.operator}`, author: data.operator || b.operator }],
-        checklist: [
-          { id: 'c1', text: 'Contato inicial realizado', done: false },
-          { id: 'c2', text: 'Documentação coletada', done: false },
-          { id: 'c3', text: 'Escalado para equipe interna', done: false },
-          { id: 'c4', text: 'Retorno ao cliente dado', done: false },
-          { id: 'c5', text: 'Demanda encerrada', done: false },
-        ],
-        tags: [],
-        isOverdue: false,
-      };
-      return { ...b, demands: [newDemand, ...b.demands] };
-    }));
-    showToast('✓ Demanda criada com sucesso!');
-  };
-
-  const handleChangeStatus = (brokerId: string, demandId: number, newStatus: DemandStatus) => {
-    setBrokers(prev => prev.map(b => {
-      if (b.id !== brokerId) return b;
-      return {
-        ...b,
-        demands: b.demands.map(d => {
-          if (d.id !== demandId) return d;
-          return {
-            ...d,
-            status: newStatus,
-            history: [...d.history, { time: '16/04 agora', text: `Status alterado para: ${newStatus}`, author: 'Sistema' }],
-          };
-        }),
-      };
-    }));
-    showToast('Status atualizado!');
-  };
-
-  const handleToggleChecklist = (brokerId: string, demandId: number, checkId: string) => {
-    setBrokers(prev => prev.map(b => {
-      if (b.id !== brokerId) return b;
-      return {
-        ...b,
-        demands: b.demands.map(d => {
-          if (d.id !== demandId) return d;
-          return {
-            ...d,
-            checklist: d.checklist.map(c => c.id === checkId ? { ...c, done: !c.done } : c),
-          };
-        }),
-      };
-    }));
-  };
+    return filtered;
+  }, [searchTerm]);
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg0)' }}>
-      <Header
-        dateRange={dateRange}
-        onDateRangeChange={setDateRange}
-        search={search}
-        onSearchChange={setSearch}
-      />
+    <div className="min-h-screen bg-gray-900">
+      {showHighPriorityAlert && (
+        <HighPriorityAlert
+          tickets={highPriorityTickets}
+          onClose={() => setShowHighPriorityAlert(false)}
+          onTicketClick={(brokerName) => {
+            setSelectedBrokerForModal(brokerName);
+            setShowHighPriorityAlert(false);
+          }}
+        />
+      )}
 
-      <div style={{ padding: '16px 20px', maxWidth: 1600, margin: '0 auto' }}>
-        <KPIRow kpis={kpis} />
+      <header className="bg-gray-800 shadow-sm border-b border-gray-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-300 bg-gray-700 border border-gray-600 rounded-lg">
+                <User className="w-4 h-4" />
+                <span>{currentUser.email}</span>
+              </div>
+            </div>
 
-        <FilterRow
-          filter={filter}
-          counts={filterCounts}
-          onFilterChange={setFilter}
-          onOpenOperators={() => setOperatorsOpen(true)}
+            <div className="flex-1 flex justify-center">
+              <img src="/mybroker.logotype-01.png" alt="MyBroker Logo" className="h-12 w-auto" />
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowAssignedTicketsModal(true)}
+                className="relative p-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
+                title="Tickets atribuídos a mim"
+              >
+                <UserCheck className="w-5 h-5" />
+                {assignedTicketsCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                    {assignedTicketsCount > 9 ? '9+' : assignedTicketsCount}
+                  </span>
+                )}
+              </button>
+
+              <button
+                onClick={() => window.location.reload()}
+                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 border border-red-500 rounded-lg transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                Sair
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <DailyTabs currentDate={currentDate} onDateChange={setCurrentDate} />
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <SearchBar
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          totalBrokers={brokers.length}
+          filteredCount={filteredAndSortedBrokers.length}
+          pendingTicketsCount={pendingTicketsCount}
+          onShowPendingTickets={() => setShowPendingTicketsModal(true)}
         />
 
-        <BrokerGrid
-          brokers={filteredBrokers}
-          onNewDemand={openNewDemand}
-          onOpenDrawer={openDrawer}
-        />
-      </div>
+        {filteredAndSortedBrokers.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="bg-gray-700 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+              <FileText className="w-8 h-8 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-medium text-white mb-2">Nenhum ticket encontrado</h3>
+            <p className="text-gray-400">Tente ajustar os termos de busca ou selecionar outra data.</p>
+          </div>
+        ) : (
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {filteredAndSortedBrokers.map((broker, index) => (
+              <TicketCard
+                key={`${broker.nome}-${index}-${currentDate}`}
+                broker={broker}
+                currentDate={currentDate}
+                ticketCount={0}
+                currentUser={currentUser.email}
+                hasHighPriority={highPriorityBrokers.includes(broker.nome)}
+                hasPendingTickets={pendingTicketsBrokers.includes(broker.nome)}
+                forceOpenModal={selectedBrokerForModal === broker.nome}
+                onModalClose={() => setSelectedBrokerForModal(null)}
+              />
+            ))}
+          </div>
+        )}
+      </main>
 
-      {/* New Demand Modal */}
-      <NewDemandModal
-        open={newDemandOpen}
-        defaultBrokerId={newDemandBrokerId}
-        brokers={brokers}
-        onClose={() => setNewDemandOpen(false)}
-        onSave={handleSaveDemand}
+      <AssignedTicketsModal
+        isOpen={showAssignedTicketsModal}
+        onClose={() => setShowAssignedTicketsModal(false)}
+        currentUser={currentUser.email}
       />
 
-      {/* Broker Drawer */}
-      <BrokerDrawer
-        broker={drawerBroker}
-        allBrokers={brokers}
-        open={!!drawerBrokerId}
-        onClose={closeDrawer}
-        onNewDemand={() => drawerBrokerId && openNewDemand(drawerBrokerId)}
-        onChangeStatus={handleChangeStatus}
-        onToggleChecklist={handleToggleChecklist}
+      <PendingTicketsModal
+        isOpen={showPendingTicketsModal}
+        onClose={() => setShowPendingTicketsModal(false)}
       />
 
-      {/* Operators Modal */}
-      <OperatorsModal
-        open={operatorsOpen}
-        brokers={brokers}
-        operators={OPERATORS}
-        onClose={() => setOperatorsOpen(false)}
-      />
-
-      <Toast message={toast.msg} visible={toast.visible} />
+      <footer className="bg-gray-800 border-t border-gray-700 mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6"></div>
+      </footer>
     </div>
   );
 }
+
+export default App;
