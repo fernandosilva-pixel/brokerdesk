@@ -100,8 +100,8 @@ export default function RotinaView() {
           sectionTasks.map(task => (
             <div
               key={task.id}
-              className={`group flex items-start gap-3 p-3 bg-white rounded-xl border transition-all duration-150 ${
-                task.done ? 'border-gray-100 opacity-60' : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+              className={`group flex items-start gap-3 p-3 bg-gray-800 rounded-xl border transition-all duration-150 ${
+                task.done ? 'border-gray-700 opacity-60' : 'border-gray-700 hover:border-gray-600 hover:shadow-sm'
               }`}
             >
               <button onClick={() => toggle(task.id)} className="mt-0.5 flex-shrink-0">
@@ -111,7 +111,7 @@ export default function RotinaView() {
                 }
               </button>
               <div className="flex-1 min-w-0">
-                <p className={`text-sm font-medium leading-snug ${task.done ? 'line-through text-gray-400' : 'text-gray-800'}`}>
+                <p className={`text-sm font-medium leading-snug ${task.done ? 'line-through text-gray-400' : 'text-gray-100'}`}>
                   {task.title}
                 </p>
                 {task.description && (
@@ -148,10 +148,10 @@ export default function RotinaView() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       {/* Header Card */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+      <div className="bg-gray-800 rounded-xl border border-gray-700 shadow-sm p-5">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h2 className="text-base font-semibold text-gray-900">Rotina do Dia</h2>
+            <h2 className="text-base font-semibold text-white">Rotina do Dia</h2>
             <div className="flex items-center gap-1.5 text-xs text-gray-400 mt-0.5">
               <Calendar className="w-3.5 h-3.5" />
               {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
@@ -160,7 +160,7 @@ export default function RotinaView() {
           <div className="flex items-center gap-2">
             <button
               onClick={resetDay}
-              className="flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-gray-700 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors"
+              className="flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-gray-300 px-3 py-1.5 bg-gray-900 hover:bg-gray-700 border border-gray-700 rounded-lg transition-colors"
             >
               <RefreshCw className="w-3 h-3" />
               Resetar
@@ -178,10 +178,10 @@ export default function RotinaView() {
         {/* Progress */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-medium text-gray-600">{done} de {total} tarefas concluídas</span>
-            <span className={`font-bold ${progress === 100 ? 'text-green-600' : progress > 50 ? 'text-blue-600' : 'text-gray-500'}`}>{progress}%</span>
+            <span className="font-medium text-gray-400">{done} de {total} tarefas concluídas</span>
+            <span className={`font-bold ${progress === 100 ? 'text-green-600' : progress > 50 ? 'text-blue-600' : 'text-gray-400'}`}>{progress}%</span>
           </div>
-          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+          <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
             <div
               className={`h-full rounded-full transition-all duration-500 ${progress === 100 ? 'bg-green-500' : 'bg-blue-500'}`}
               style={{ width: `${progress}%` }}
@@ -192,7 +192,7 @@ export default function RotinaView() {
         {/* Summary Badges */}
         <div className="flex gap-3 mt-4 pt-4 border-t border-gray-50">
           {[
-            { label: 'Total', value: total, color: 'text-gray-700' },
+            { label: 'Total', value: total, color: 'text-gray-300' },
             { label: 'Concluídas', value: done, color: 'text-green-600' },
             { label: 'Pendentes', value: total - done, color: 'text-red-600' },
           ].map(({ label, value, color }) => (
@@ -214,42 +214,42 @@ export default function RotinaView() {
       {/* Add Task Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+          <div className="bg-gray-800 rounded-2xl shadow-xl w-full max-w-md p-6">
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-base font-semibold text-gray-900">Nova Tarefa</h2>
-              <button onClick={() => setShowAddModal(false)} className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+              <h2 className="text-base font-semibold text-white">Nova Tarefa</h2>
+              <button onClick={() => setShowAddModal(false)} className="p-1.5 text-gray-400 hover:text-gray-300 hover:bg-gray-700 rounded-lg transition-colors">
                 <Plus className="w-4 h-4 rotate-45" />
               </button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1.5">Título *</label>
+                <label className="block text-xs font-semibold text-gray-300 mb-1.5">Título *</label>
                 <input
                   type="text"
                   value={newTask.title}
                   onChange={e => setNewTask(p => ({ ...p, title: e.target.value }))}
-                  className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-400"
+                  className="w-full px-3 py-2.5 text-sm border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400"
                   placeholder="Nome da tarefa"
                   autoFocus
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1.5">Descrição</label>
+                <label className="block text-xs font-semibold text-gray-300 mb-1.5">Descrição</label>
                 <textarea
                   value={newTask.description}
                   onChange={e => setNewTask(p => ({ ...p, description: e.target.value }))}
-                  className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-900 placeholder-gray-400"
+                  className="w-full px-3 py-2.5 text-sm border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-white placeholder-gray-400"
                   rows={2}
                   placeholder="Opcional"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1.5">Período</label>
+                  <label className="block text-xs font-semibold text-gray-300 mb-1.5">Período</label>
                   <select
                     value={newTask.category}
                     onChange={e => setNewTask(p => ({ ...p, category: e.target.value as Task['category'] }))}
-                    className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                    className="w-full px-3 py-2.5 text-sm border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                   >
                     <option value="manha">Manhã</option>
                     <option value="tarde">Tarde</option>
@@ -257,12 +257,12 @@ export default function RotinaView() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1.5">Horário</label>
+                  <label className="block text-xs font-semibold text-gray-300 mb-1.5">Horário</label>
                   <input
                     type="time"
                     value={newTask.time}
                     onChange={e => setNewTask(p => ({ ...p, time: e.target.value }))}
-                    className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                    className="w-full px-3 py-2.5 text-sm border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                   />
                 </div>
               </div>
@@ -273,11 +273,11 @@ export default function RotinaView() {
                   onChange={e => setNewTask(p => ({ ...p, recorrente: e.target.checked }))}
                   className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                 />
-                <span className="text-sm text-gray-700">Tarefa recorrente (repete todo dia)</span>
+                <span className="text-sm text-gray-300">Tarefa recorrente (repete todo dia)</span>
               </label>
             </div>
             <div className="flex gap-3 mt-6">
-              <button onClick={() => setShowAddModal(false)} className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancelar</button>
+              <button onClick={() => setShowAddModal(false)} className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-400 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">Cancelar</button>
               <button
                 onClick={addTask}
                 disabled={!newTask.title.trim()}

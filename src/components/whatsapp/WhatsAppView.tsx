@@ -176,8 +176,8 @@ export default function WhatsAppView() {
       </div>
 
       {/* Tabs */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-        <div className="flex border-b border-gray-100">
+      <div className="bg-gray-800 rounded-xl border border-gray-700 shadow-sm overflow-hidden">
+        <div className="flex border-b border-gray-700">
           {tabs.map(({ id, label, Icon }) => (
             <button
               key={id}
@@ -185,7 +185,7 @@ export default function WhatsAppView() {
               className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-medium transition-all ${
                 activeTab === id
                   ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50'
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                  : 'text-gray-400 hover:text-gray-300 hover:bg-gray-900'
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -200,7 +200,7 @@ export default function WhatsAppView() {
             <div className="space-y-4">
               <div className="grid grid-cols-1 gap-4">
                 <div>
-                  <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-700 mb-1.5">
+                  <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-300 mb-1.5">
                     <Globe className="w-3.5 h-3.5 text-gray-400" />
                     URL da API
                   </label>
@@ -208,12 +208,12 @@ export default function WhatsAppView() {
                     type="url"
                     value={config.apiUrl || ''}
                     onChange={e => setConfig(p => ({ ...p, apiUrl: e.target.value }))}
-                    className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400"
+                    className="w-full px-3 py-2.5 text-sm border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-400"
                     placeholder="https://sua-evolution-api.com"
                   />
                 </div>
                 <div>
-                  <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-700 mb-1.5">
+                  <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-300 mb-1.5">
                     <Lock className="w-3.5 h-3.5 text-gray-400" />
                     API Token
                   </label>
@@ -221,13 +221,13 @@ export default function WhatsAppView() {
                     type="password"
                     value={config.apiToken || ''}
                     onChange={e => setConfig(p => ({ ...p, apiToken: e.target.value }))}
-                    className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400"
+                    className="w-full px-3 py-2.5 text-sm border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-400"
                     placeholder="seu-token-secreto"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-700 mb-1.5">
+                    <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-300 mb-1.5">
                       <Zap className="w-3.5 h-3.5 text-gray-400" />
                       Nome da Instância
                     </label>
@@ -235,12 +235,12 @@ export default function WhatsAppView() {
                       type="text"
                       value={config.instance || ''}
                       onChange={e => setConfig(p => ({ ...p, instance: e.target.value }))}
-                      className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400"
+                      className="w-full px-3 py-2.5 text-sm border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-400"
                       placeholder="brokerdesk"
                     />
                   </div>
                   <div>
-                    <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-700 mb-1.5">
+                    <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-300 mb-1.5">
                       <Phone className="w-3.5 h-3.5 text-gray-400" />
                       Telefone Padrão
                     </label>
@@ -248,7 +248,7 @@ export default function WhatsAppView() {
                       type="text"
                       value={config.defaultPhone || ''}
                       onChange={e => setConfig(p => ({ ...p, defaultPhone: e.target.value }))}
-                      className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400"
+                      className="w-full px-3 py-2.5 text-sm border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-400"
                       placeholder="5511999999999"
                     />
                   </div>
@@ -262,7 +262,7 @@ export default function WhatsAppView() {
                   className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg transition-all ${
                     testStatus === 'ok' ? 'bg-green-50 text-green-700 border border-green-200' :
                     testStatus === 'error' ? 'bg-red-50 text-red-700 border border-red-200' :
-                    'bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100'
+                    'bg-gray-900 text-gray-400 border border-gray-700 hover:bg-gray-700'
                   }`}
                 >
                   {testStatus === 'sending' ? <RefreshCw className="w-4 h-4 animate-spin" /> :
@@ -279,9 +279,9 @@ export default function WhatsAppView() {
                 </button>
               </div>
 
-              <div className="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
-                <p className="text-xs font-semibold text-gray-600 mb-2">Como configurar</p>
-                <ol className="text-xs text-gray-500 space-y-1 list-decimal list-inside">
+              <div className="mt-4 p-4 bg-gray-900 rounded-xl border border-gray-700">
+                <p className="text-xs font-semibold text-gray-400 mb-2">Como configurar</p>
+                <ol className="text-xs text-gray-400 space-y-1 list-decimal list-inside">
                   <li>Instale a <strong>Evolution API</strong> no seu servidor</li>
                   <li>Crie uma instância e conecte seu WhatsApp via QR Code</li>
                   <li>Copie a URL da API e o Token de autenticação</li>
@@ -295,7 +295,7 @@ export default function WhatsAppView() {
           {activeTab === 'templates' && (
             <div className="space-y-3">
               <div className="flex items-center justify-between mb-4">
-                <p className="text-sm text-gray-500">Templates de mensagem para alertas automáticos</p>
+                <p className="text-sm text-gray-400">Templates de mensagem para alertas automáticos</p>
                 <button
                   onClick={() => setShowTemplateModal(true)}
                   className="flex items-center gap-1.5 text-xs font-medium text-white px-3 py-1.5 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
@@ -305,15 +305,15 @@ export default function WhatsAppView() {
                 </button>
               </div>
               {templates.map(t => (
-                <div key={t.id} className="border border-gray-200 rounded-xl p-4 hover:border-gray-300 transition-colors">
+                <div key={t.id} className="border border-gray-700 rounded-xl p-4 hover:border-gray-600 transition-colors">
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <p className="text-sm font-semibold text-gray-800">{t.name}</p>
+                      <p className="text-sm font-semibold text-gray-100">{t.name}</p>
                       <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full border ${
                         t.triggerType === 'urgente' ? 'bg-red-50 text-red-700 border-red-200' :
                         t.triggerType === 'pendente' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
                         t.triggerType === 'rotina' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                        'bg-gray-50 text-gray-600 border-gray-200'
+                        'bg-gray-900 text-gray-400 border-gray-700'
                       }`}>
                         {triggerLabels[t.triggerType]}
                       </span>
@@ -333,7 +333,7 @@ export default function WhatsAppView() {
                       </button>
                     </div>
                   </div>
-                  <pre className="text-xs text-gray-500 whitespace-pre-wrap font-sans bg-gray-50 rounded-lg p-3 border border-gray-100 mt-2">{t.message}</pre>
+                  <pre className="text-xs text-gray-400 whitespace-pre-wrap font-sans bg-gray-900 rounded-lg p-3 border border-gray-700 mt-2">{t.message}</pre>
                 </div>
               ))}
             </div>
@@ -343,21 +343,21 @@ export default function WhatsAppView() {
           {activeTab === 'enviar' && (
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1.5">Número de destino</label>
+                <label className="block text-xs font-semibold text-gray-300 mb-1.5">Número de destino</label>
                 <input
                   type="text"
                   value={sendForm.phone}
                   onChange={e => setSendForm(p => ({ ...p, phone: e.target.value }))}
-                  className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400"
+                  className="w-full px-3 py-2.5 text-sm border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-400"
                   placeholder="5511999999999 (com DDI e DDD)"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1.5">Broker (opcional — para templates)</label>
+                <label className="block text-xs font-semibold text-gray-300 mb-1.5">Broker (opcional — para templates)</label>
                 <select
                   value={sendForm.broker}
                   onChange={e => setSendForm(p => ({ ...p, broker: e.target.value }))}
-                  className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                  className="w-full px-3 py-2.5 text-sm border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                 >
                   <option value="">Nenhum</option>
                   {brokers.map(b => <option key={b.nome} value={b.nome}>{b.nome}</option>)}
@@ -365,7 +365,7 @@ export default function WhatsAppView() {
               </div>
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-semibold text-gray-700">Mensagem</label>
+                  <label className="text-xs font-semibold text-gray-300">Mensagem</label>
                   <button
                     onClick={() => setActiveTab('templates')}
                     className="text-[11px] text-blue-600 hover:text-blue-800 font-medium"
@@ -376,7 +376,7 @@ export default function WhatsAppView() {
                 <textarea
                   value={sendForm.message}
                   onChange={e => setSendForm(p => ({ ...p, message: e.target.value }))}
-                  className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none text-gray-900 placeholder-gray-400"
+                  className="w-full px-3 py-2.5 text-sm border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none text-white placeholder-gray-400"
                   rows={5}
                   placeholder="Digite a mensagem a ser enviada..."
                 />
@@ -406,11 +406,11 @@ export default function WhatsAppView() {
                 </div>
               ) : (
                 sent.map(s => (
-                  <div key={s.id} className={`border rounded-xl p-3 ${s.status === 'error' ? 'border-red-100 bg-red-50' : 'border-gray-100 bg-white'}`}>
+                  <div key={s.id} className={`border rounded-xl p-3 ${s.status === 'error' ? 'border-red-100 bg-red-50' : 'border-gray-700 bg-gray-800'}`}>
                     <div className="flex items-center justify-between mb-1.5">
                       <div className="flex items-center gap-2">
                         <Phone className="w-3.5 h-3.5 text-gray-400" />
-                        <span className="text-xs font-medium text-gray-700">{s.phone}</span>
+                        <span className="text-xs font-medium text-gray-300">{s.phone}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
@@ -423,7 +423,7 @@ export default function WhatsAppView() {
                         <span className="text-[10px] text-gray-400">{s.time}</span>
                       </div>
                     </div>
-                    <pre className="text-xs text-gray-500 whitespace-pre-wrap font-sans">{s.message.slice(0, 120)}{s.message.length > 120 ? '...' : ''}</pre>
+                    <pre className="text-xs text-gray-400 whitespace-pre-wrap font-sans">{s.message.slice(0, 120)}{s.message.length > 120 ? '...' : ''}</pre>
                   </div>
                 ))
               )}
@@ -435,30 +435,30 @@ export default function WhatsAppView() {
       {/* New Template Modal */}
       {showTemplateModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+          <div className="bg-gray-800 rounded-2xl shadow-xl w-full max-w-md p-6">
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-base font-semibold text-gray-900">Novo Template</h2>
-              <button onClick={() => setShowTemplateModal(false)} className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+              <h2 className="text-base font-semibold text-white">Novo Template</h2>
+              <button onClick={() => setShowTemplateModal(false)} className="p-1.5 text-gray-400 hover:text-gray-300 hover:bg-gray-700 rounded-lg transition-colors">
                 <X className="w-4 h-4" />
               </button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1.5">Nome do Template *</label>
+                <label className="block text-xs font-semibold text-gray-300 mb-1.5">Nome do Template *</label>
                 <input
                   type="text"
                   value={newTemplate.name}
                   onChange={e => setNewTemplate(p => ({ ...p, name: e.target.value }))}
-                  className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400"
+                  className="w-full px-3 py-2.5 text-sm border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-400"
                   placeholder="Ex: Alerta de SLA"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1.5">Tipo de Gatilho</label>
+                <label className="block text-xs font-semibold text-gray-300 mb-1.5">Tipo de Gatilho</label>
                 <select
                   value={newTemplate.triggerType}
                   onChange={e => setNewTemplate(p => ({ ...p, triggerType: e.target.value as AlertTemplate['triggerType'] }))}
-                  className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                  className="w-full px-3 py-2.5 text-sm border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                 >
                   <option value="manual">Manual</option>
                   <option value="pendente">Ticket Pendente</option>
@@ -467,21 +467,21 @@ export default function WhatsAppView() {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+                <label className="block text-xs font-semibold text-gray-300 mb-1.5">
                   Mensagem *
                   <span className="font-normal text-gray-400 ml-1">— use {'{{broker}}'}, {'{{titulo}}'}, {'{{link}}'}</span>
                 </label>
                 <textarea
                   value={newTemplate.message}
                   onChange={e => setNewTemplate(p => ({ ...p, message: e.target.value }))}
-                  className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none text-gray-900 placeholder-gray-400"
+                  className="w-full px-3 py-2.5 text-sm border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none text-white placeholder-gray-400"
                   rows={4}
                   placeholder="Digite a mensagem do template..."
                 />
               </div>
             </div>
             <div className="flex gap-3 mt-6">
-              <button onClick={() => setShowTemplateModal(false)} className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancelar</button>
+              <button onClick={() => setShowTemplateModal(false)} className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-400 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">Cancelar</button>
               <button
                 onClick={addTemplate}
                 disabled={!newTemplate.name.trim() || !newTemplate.message.trim()}

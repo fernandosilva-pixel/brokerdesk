@@ -36,7 +36,7 @@ const statusConfig = {
   Pendente: { color: 'bg-red-100 text-red-700 border-red-200', dot: 'bg-red-500', Icon: Circle },
   'Em Andamento': { color: 'bg-yellow-100 text-yellow-700 border-yellow-200', dot: 'bg-yellow-500', Icon: Play },
   Resolvido: { color: 'bg-green-100 text-green-700 border-green-200', dot: 'bg-green-500', Icon: CheckCircle },
-  Fechado: { color: 'bg-gray-100 text-gray-600 border-gray-200', dot: 'bg-gray-400', Icon: CheckCircle },
+  Fechado: { color: 'bg-gray-700 text-gray-400 border-gray-700', dot: 'bg-gray-400', Icon: CheckCircle },
   Aberto: { color: 'bg-red-100 text-red-700 border-red-200', dot: 'bg-red-500', Icon: Circle },
 } as const;
 
@@ -102,8 +102,8 @@ export default function DashboardView({ searchTerm, currentUser }: DashboardView
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {kpis.map(({ label, value, color, bg }) => (
-          <div key={label} className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
-            <p className="text-xs font-medium text-gray-500 mb-1">{label}</p>
+          <div key={label} className="bg-gray-800 rounded-xl border border-gray-700 p-4 shadow-sm">
+            <p className="text-xs font-medium text-gray-400 mb-1">{label}</p>
             <p className={`text-3xl font-bold ${color}`}>{value}</p>
             <div className={`mt-2 h-1 rounded-full ${bg}`} />
           </div>
@@ -111,12 +111,12 @@ export default function DashboardView({ searchTerm, currentUser }: DashboardView
       </div>
 
       {/* Date Tabs */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-3">
+      <div className="bg-gray-800 rounded-xl border border-gray-700 shadow-sm p-3">
         <div className="flex items-center gap-2">
           <button
             onClick={() => setDateStart(Math.max(0, dateStart - 1))}
             disabled={dateStart === 0}
-            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-300 hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
@@ -130,7 +130,7 @@ export default function DashboardView({ searchTerm, currentUser }: DashboardView
                     ? 'bg-blue-600 text-white shadow-sm'
                     : date.isToday
                     ? 'text-blue-600 bg-blue-50 hover:bg-blue-100'
-                    : 'text-gray-500 hover:bg-gray-50'
+                    : 'text-gray-400 hover:bg-gray-900'
                 }`}
               >
                 <span className="uppercase tracking-wide text-[10px]">{date.label}</span>
@@ -141,7 +141,7 @@ export default function DashboardView({ searchTerm, currentUser }: DashboardView
           <button
             onClick={() => setDateStart(Math.min(dates.length - 7, dateStart + 1))}
             disabled={dateStart + 7 >= dates.length}
-            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-300 hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -159,17 +159,17 @@ export default function DashboardView({ searchTerm, currentUser }: DashboardView
           return (
             <div
               key={broker.nome}
-              className={`bg-white rounded-xl border shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden flex flex-col ${
+              className={`bg-gray-800 rounded-xl border shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden flex flex-col ${
                 urgent > 0 ? 'border-red-300 border-l-4 border-l-red-500' :
                 pending > 0 ? 'border-yellow-300 border-l-4 border-l-yellow-400' :
-                'border-gray-200'
+                'border-gray-700'
               }`}
             >
               {/* Card Header */}
               <div className="px-4 pt-4 pb-3 flex items-start justify-between">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-semibold text-gray-900 truncate">{broker.nome}</h3>
+                    <h3 className="text-sm font-semibold text-white truncate">{broker.nome}</h3>
                     {urgent > 0 && (
                       <span className="flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 bg-red-100 text-red-700 rounded-full border border-red-200">
                         <AlertTriangle className="w-2.5 h-2.5" /> Urgente
@@ -206,7 +206,7 @@ export default function DashboardView({ searchTerm, currentUser }: DashboardView
                     )}
                   </>
                 ) : (
-                  <span className="text-[11px] font-medium px-2 py-0.5 bg-gray-50 text-gray-500 border border-gray-100 rounded-full">
+                  <span className="text-[11px] font-medium px-2 py-0.5 bg-gray-900 text-gray-400 border border-gray-700 rounded-full">
                     Sem tickets
                   </span>
                 )}
@@ -215,7 +215,7 @@ export default function DashboardView({ searchTerm, currentUser }: DashboardView
               {/* Status Grid */}
               <div className="px-4 pb-3 border-t border-gray-50 pt-3">
                 <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-2">Status dos Tickets</p>
-                <div className="grid grid-cols-2 gap-y-1 text-xs text-gray-600">
+                <div className="grid grid-cols-2 gap-y-1 text-xs text-gray-400">
                   {[
                     { label: 'Pendentes', status: 'Pendente', dot: 'bg-red-400' },
                     { label: 'Andamento', status: 'Em Andamento', dot: 'bg-yellow-400' },
@@ -224,7 +224,7 @@ export default function DashboardView({ searchTerm, currentUser }: DashboardView
                   ].map(({ label, status, dot }) => (
                     <div key={status} className="flex items-center gap-1.5">
                       <div className={`w-1.5 h-1.5 rounded-full ${dot}`} />
-                      <span>{label}: <span className="font-semibold text-gray-800">{bTickets.filter(t => t.status === status).length}</span></span>
+                      <span>{label}: <span className="font-semibold text-gray-100">{bTickets.filter(t => t.status === status).length}</span></span>
                     </div>
                   ))}
                 </div>
@@ -239,7 +239,7 @@ export default function DashboardView({ searchTerm, currentUser }: DashboardView
                   </div>
                   <div className="flex items-center gap-2">
                     <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${statusConfig[lastTicket.status]?.dot || 'bg-gray-400'}`} />
-                    <p className="text-xs text-gray-700 truncate flex-1">{lastTicket.title}</p>
+                    <p className="text-xs text-gray-300 truncate flex-1">{lastTicket.title}</p>
                     <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${priorityConfig[lastTicket.priority]?.color}`}>
                       {lastTicket.priority}
                     </span>
@@ -251,7 +251,7 @@ export default function DashboardView({ searchTerm, currentUser }: DashboardView
               <div className="mt-auto px-4 pb-3 pt-2 border-t border-gray-50">
                 <button
                   onClick={() => setReportModal(broker)}
-                  className="w-full flex items-center justify-center gap-1.5 text-xs font-medium text-gray-500 hover:text-blue-600 hover:bg-blue-50 py-1.5 rounded-lg transition-colors"
+                  className="w-full flex items-center justify-center gap-1.5 text-xs font-medium text-gray-400 hover:text-blue-600 hover:bg-blue-50 py-1.5 rounded-lg transition-colors"
                 >
                   <BarChart3 className="w-3.5 h-3.5" />
                   Ver Relatório
@@ -265,44 +265,44 @@ export default function DashboardView({ searchTerm, currentUser }: DashboardView
       {/* Create Ticket Modal */}
       {createModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+          <div className="bg-gray-800 rounded-2xl shadow-xl w-full max-w-md p-6">
             <div className="flex items-center justify-between mb-5">
               <div>
-                <h2 className="text-base font-semibold text-gray-900">Novo Ticket</h2>
-                <p className="text-xs text-gray-500 mt-0.5">{createModal.nome}</p>
+                <h2 className="text-base font-semibold text-white">Novo Ticket</h2>
+                <p className="text-xs text-gray-400 mt-0.5">{createModal.nome}</p>
               </div>
-              <button onClick={() => setCreateModal(null)} className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+              <button onClick={() => setCreateModal(null)} className="p-1.5 text-gray-400 hover:text-gray-300 hover:bg-gray-700 rounded-lg transition-colors">
                 <X className="w-4 h-4" />
               </button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1.5">Título *</label>
+                <label className="block text-xs font-semibold text-gray-300 mb-1.5">Título *</label>
                 <input
                   type="text"
                   value={newTicket.title}
                   onChange={e => setNewTicket(p => ({ ...p, title: e.target.value }))}
-                  className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-400"
+                  className="w-full px-3 py-2.5 text-sm border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400"
                   placeholder="Descreva o problema"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1.5">Descrição</label>
+                <label className="block text-xs font-semibold text-gray-300 mb-1.5">Descrição</label>
                 <textarea
                   value={newTicket.description}
                   onChange={e => setNewTicket(p => ({ ...p, description: e.target.value }))}
-                  className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-900 placeholder-gray-400"
+                  className="w-full px-3 py-2.5 text-sm border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-white placeholder-gray-400"
                   rows={3}
                   placeholder="Detalhes adicionais..."
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1.5">Prioridade</label>
+                  <label className="block text-xs font-semibold text-gray-300 mb-1.5">Prioridade</label>
                   <select
                     value={newTicket.priority}
                     onChange={e => setNewTicket(p => ({ ...p, priority: e.target.value as Ticket['priority'] }))}
-                    className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                    className="w-full px-3 py-2.5 text-sm border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white"
                   >
                     <option>Baixa</option>
                     <option>Média</option>
@@ -311,11 +311,11 @@ export default function DashboardView({ searchTerm, currentUser }: DashboardView
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1.5">Atribuir a</label>
+                  <label className="block text-xs font-semibold text-gray-300 mb-1.5">Atribuir a</label>
                   <select
                     value={newTicket.assignedTo}
                     onChange={e => setNewTicket(p => ({ ...p, assignedTo: e.target.value }))}
-                    className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                    className="w-full px-3 py-2.5 text-sm border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white"
                   >
                     <option value="">Ninguém</option>
                     <option>suporte@mybroker.com</option>
@@ -325,7 +325,7 @@ export default function DashboardView({ searchTerm, currentUser }: DashboardView
               </div>
             </div>
             <div className="flex gap-3 mt-6">
-              <button onClick={() => setCreateModal(null)} className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancelar</button>
+              <button onClick={() => setCreateModal(null)} className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-400 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">Cancelar</button>
               <button
                 onClick={handleCreateTicket}
                 disabled={!newTicket.title.trim()}
@@ -341,13 +341,13 @@ export default function DashboardView({ searchTerm, currentUser }: DashboardView
       {/* Report Modal */}
       {reportModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-6 max-h-[85vh] overflow-y-auto">
+          <div className="bg-gray-800 rounded-2xl shadow-xl w-full max-w-2xl p-6 max-h-[85vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-5">
               <div>
-                <h2 className="text-base font-semibold text-gray-900">Relatório — {reportModal.nome}</h2>
-                <p className="text-xs text-gray-500 mt-0.5">{new Date(currentDate + 'T12:00:00').toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+                <h2 className="text-base font-semibold text-white">Relatório — {reportModal.nome}</h2>
+                <p className="text-xs text-gray-400 mt-0.5">{new Date(currentDate + 'T12:00:00').toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
               </div>
-              <button onClick={() => setReportModal(null)} className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+              <button onClick={() => setReportModal(null)} className="p-1.5 text-gray-400 hover:text-gray-300 hover:bg-gray-700 rounded-lg transition-colors">
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -355,7 +355,7 @@ export default function DashboardView({ searchTerm, currentUser }: DashboardView
             {brokerTickets(reportModal.nome).length === 0 ? (
               <div className="text-center py-12">
                 <FileText className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-                <p className="text-sm text-gray-500">Nenhum ticket encontrado</p>
+                <p className="text-sm text-gray-400">Nenhum ticket encontrado</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -363,16 +363,16 @@ export default function DashboardView({ searchTerm, currentUser }: DashboardView
                   const cfg = statusConfig[ticket.status];
                   const pcfg = priorityConfig[ticket.priority];
                   return (
-                    <div key={ticket.id} className={`border rounded-xl p-4 border-l-4 ${pcfg?.border || 'border-l-gray-300'} border-gray-100`}>
+                    <div key={ticket.id} className={`border rounded-xl p-4 border-l-4 ${pcfg?.border || 'border-l-gray-300'} border-gray-700`}>
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <p className="text-sm font-semibold text-gray-900 truncate">{ticket.title}</p>
+                            <p className="text-sm font-semibold text-white truncate">{ticket.title}</p>
                             <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${pcfg?.color}`}>{ticket.priority}</span>
                           </div>
-                          {ticket.description && <p className="text-xs text-gray-500 mb-2">{ticket.description}</p>}
+                          {ticket.description && <p className="text-xs text-gray-400 mb-2">{ticket.description}</p>}
                           <div className="flex items-center gap-3 text-xs text-gray-400">
-                            <span>Por: <span className="text-gray-600">{ticket.createdBy}</span></span>
+                            <span>Por: <span className="text-gray-400">{ticket.createdBy}</span></span>
                             {ticket.assignedTo && <span>Para: <span className="text-blue-600">{ticket.assignedTo}</span></span>}
                           </div>
                         </div>
@@ -395,8 +395,8 @@ export default function DashboardView({ searchTerm, currentUser }: DashboardView
               </div>
             )}
 
-            <div className="flex justify-end mt-5 pt-4 border-t border-gray-100">
-              <button onClick={() => setReportModal(null)} className="px-5 py-2 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Fechar</button>
+            <div className="flex justify-end mt-5 pt-4 border-t border-gray-700">
+              <button onClick={() => setReportModal(null)} className="px-5 py-2 text-sm font-medium text-gray-400 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">Fechar</button>
             </div>
           </div>
         </div>
