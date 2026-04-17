@@ -9,6 +9,7 @@ import WhatsAppView from './components/whatsapp/WhatsAppView';
 import AdminView from './components/admin/AdminView';
 import LoginView from './components/auth/LoginView';
 import { AuthProvider, useAuth } from './hooks/useAuth';
+import { ThemeProvider } from './hooks/useTheme';
 import { supabase } from './lib/supabase';
 import type { Broker, Ticket } from './data/brokers';
 import type { BrokerRow, TicketRow } from './lib/supabase';
@@ -35,6 +36,7 @@ function AppInner() {
   const { user, profile, isAdmin, signOut, loading } = useAuth();
   const [activeView, setActiveView] = useState<View>('dashboard');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [brokers, setBrokers] = useState<Broker[]>([]);
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -53,6 +55,13 @@ function AppInner() {
   }, []);
 
   useEffect(() => { if (user) loadData(); }, [user, loadData]);
+
+  // Close mobile menu on view change
+  const navigate = (view: View) => {
+    setActiveView(view);
+    setSearchTerm('');
+    setMobileMenuOpen(false);
+  };
 
   const onAddTicket = async (ticket: Ticket) => {
     const { data, error } = await supabase.from('tickets').insert({
@@ -87,9 +96,6 @@ function AppInner() {
 
   if (!user) return <LoginView />;
 
-  const sidebarWidth = sidebarCollapsed ? 'ml-16' : 'ml-60';
-  const showSearch = activeView === 'dashboard';
-
   const renderView = () => {
     if (dataLoading) {
       return (
@@ -123,24 +129,36 @@ function AppInner() {
 
   return (
     <div className="min-h-screen bg-gray-900">
+      {/* Mobile overlay */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-20 md:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
       <Sidebar
         activeView={activeView}
-        onNavigate={(view) => { setActiveView(view); setSearchTerm(''); }}
+        onNavigate={navigate}
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(p => !p)}
         isAdmin={isAdmin}
         onSignOut={signOut}
+        mobileOpen={mobileMenuOpen}
+        onMobileClose={() => setMobileMenuOpen(false)}
       />
 
-      <div className={`${sidebarWidth} transition-all duration-200 flex flex-col min-h-screen`}>
+      {/* Main content — offset only on md+ */}
+      <div className={`${sidebarCollapsed ? 'md:ml-16' : 'md:ml-60'} transition-all duration-200 flex flex-col min-h-screen`}>
         <Header
           activeView={activeView}
           profile={profile}
           onSignOut={signOut}
+          onMobileMenuToggle={() => setMobileMenuOpen(p => !p)}
         />
 
-        {showSearch && (
-          <div className="px-6 pt-4 pb-0">
+        {activeView === 'dashboard' && (
+          <div className="px-4 md:px-6 pt-4 pb-0">
             <div className="relative max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
               <input
@@ -154,7 +172,7 @@ function AppInner() {
           </div>
         )}
 
-        <main className="flex-1 p-6">{renderView()}</main>
+        <main className="flex-1 p-4 md:p-6">{renderView()}</main>
       </div>
     </div>
   );
@@ -162,8 +180,10 @@ function AppInner() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AppInner />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <AppInner />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

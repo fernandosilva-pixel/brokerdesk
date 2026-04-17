@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bell, ChevronDown, X, Info, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
+import { Bell, X, Info, AlertTriangle, CheckCircle, XCircle, Sun, Moon, Menu } from 'lucide-react';
 import type { View } from './Sidebar';
 import { supabase } from '../../lib/supabase';
 import type { NotificationRow, Profile } from '../../lib/supabase';
+import { useTheme } from '../../hooks/useTheme';
 
 const titles: Record<View, { title: string; subtitle: string }> = {
   dashboard: { title: 'Dashboard',        subtitle: 'Visão geral das demandas' },
@@ -23,19 +24,18 @@ interface HeaderProps {
   activeView: View;
   profile: Profile | null;
   onSignOut: () => void;
+  onMobileMenuToggle: () => void;
 }
 
-export default function Header({ activeView, profile, onSignOut }: HeaderProps) {
+export default function Header({ activeView, profile, onSignOut, onMobileMenuToggle }: HeaderProps) {
   const { title, subtitle } = titles[activeView];
+  const { theme, toggleTheme } = useTheme();
   const [notifications, setNotifications] = useState<NotificationRow[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [unread, setUnread] = useState(0);
   const dropRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    loadNotifications();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile]);
+  useEffect(() => { loadNotifications(); }, [profile]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -70,14 +70,32 @@ export default function Header({ activeView, profile, onSignOut }: HeaderProps) 
   const displayEmail = profile?.email ?? '';
 
   return (
-    <header className="h-16 bg-gray-800 border-b border-gray-700 flex items-center px-6 gap-4 sticky top-0 z-20">
+    <header className="h-16 bg-gray-800 border-b border-gray-700 flex items-center px-4 md:px-6 gap-3 sticky top-0 z-20">
+      {/* Hamburger — mobile only */}
+      <button
+        onClick={onMobileMenuToggle}
+        className="md:hidden p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0"
+      >
+        <Menu className="w-5 h-5" />
+      </button>
+
+      {/* Title */}
       <div className="flex-1 min-w-0">
-        <h1 className="text-base font-semibold text-white leading-tight">{title}</h1>
-        <p className="text-xs text-gray-400 truncate">{subtitle}</p>
+        <h1 className="text-sm md:text-base font-semibold text-white leading-tight truncate">{title}</h1>
+        <p className="text-xs text-gray-400 truncate hidden sm:block">{subtitle}</p>
       </div>
 
+      {/* Theme toggle */}
+      <button
+        onClick={toggleTheme}
+        className="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0"
+        title={theme === 'dark' ? 'Tema claro' : 'Tema escuro'}
+      >
+        {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+      </button>
+
       {/* Bell */}
-      <div className="relative" ref={dropRef}>
+      <div className="relative flex-shrink-0" ref={dropRef}>
         <button
           onClick={handleOpenBell}
           className="relative p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
@@ -91,14 +109,14 @@ export default function Header({ activeView, profile, onSignOut }: HeaderProps) 
         </button>
 
         {showDropdown && (
-          <div className="absolute right-0 top-full mt-2 w-80 bg-gray-800 border border-gray-700 rounded-xl shadow-2xl overflow-hidden z-50">
+          <div className="absolute right-0 top-full mt-2 w-72 md:w-80 bg-gray-800 border border-gray-700 rounded-xl shadow-2xl overflow-hidden z-50">
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
               <p className="text-sm font-semibold text-white">Notificações</p>
               <button onClick={() => setShowDropdown(false)} className="text-gray-500 hover:text-gray-300">
                 <X className="w-3.5 h-3.5" />
               </button>
             </div>
-            <div className="max-h-80 overflow-y-auto">
+            <div className="max-h-72 overflow-y-auto">
               {notifications.length === 0 ? (
                 <p className="text-center text-xs text-gray-500 py-8">Nenhuma notificação</p>
               ) : (
@@ -125,17 +143,14 @@ export default function Header({ activeView, profile, onSignOut }: HeaderProps) 
       </div>
 
       {/* User */}
-      <div className="flex items-center gap-2 pl-3 border-l border-gray-700">
+      <div className="flex items-center gap-2 pl-3 border-l border-gray-700 flex-shrink-0">
         <div className="w-7 h-7 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
           {displayName.charAt(0).toUpperCase()}
         </div>
-        <div className="hidden md:block">
+        <div className="hidden lg:block">
           <p className="text-xs font-medium text-gray-300 leading-none">{displayName}</p>
-          <p className="text-xs text-gray-500 leading-none mt-0.5">{displayEmail}</p>
+          <p className="text-xs text-gray-500 leading-none mt-0.5 truncate max-w-[120px]">{displayEmail}</p>
         </div>
-        <button onClick={onSignOut} className="ml-1">
-          <ChevronDown className="w-3 h-3 text-gray-500" />
-        </button>
       </div>
     </header>
   );
