@@ -39,16 +39,25 @@ export default function Sidebar({ activeView, onNavigate, collapsed, onToggle, i
       `}
     >
       {/* Logo */}
-      <div className={`flex items-center border-b border-gray-700 h-16 ${collapsed ? 'justify-center' : 'px-4 gap-3'}`}>
-        <img
-          src="https://uploadsww.s3.us-east-1.amazonaws.com/files/01JC6QYQQTSDG3PWRR7W7GHZQB/01KF7N0KEDSPRAC3DF7V0EKPM5/TICKET/TICKET_ATTACHMENT/01KPEFS4V8W11VVTJ3KBB4RSZ5.png"
-          alt="BrokerDesk"
-          className={collapsed ? 'h-7 w-auto' : 'h-8 w-auto'}
-          onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
-        />
+      <div className="flex items-center justify-center border-b border-gray-700 h-16 px-3 relative">
+        {collapsed ? (
+          <img
+            src="https://uploadsww.s3.us-east-1.amazonaws.com/files/01JC6QYQQTSDG3PWRR7W7GHZQB/01KF7N0KEDSPRAC3DF7V0EKPM5/TICKET/TICKET_ATTACHMENT/01KPEJXAC4CZPBH5QR3PCJV6N7.png"
+            alt="BrokerDesk"
+            className="h-7 w-auto"
+            onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
+          />
+        ) : (
+          <img
+            src="https://uploadsww.s3.us-east-1.amazonaws.com/files/01JC6QYQQTSDG3PWRR7W7GHZQB/01KF7N0KEDSPRAC3DF7V0EKPM5/TICKET/TICKET_ATTACHMENT/01KPEFS4V8W11VVTJ3KBB4RSZ5.png"
+            alt="BrokerDesk"
+            className="h-8 w-auto"
+            onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
+          />
+        )}
         {/* Close button — mobile only */}
         {!collapsed && (
-          <button onClick={onMobileClose} className="md:hidden p-1 text-gray-500 hover:text-gray-300">
+          <button onClick={onMobileClose} className="md:hidden absolute right-3 p-1 text-gray-500 hover:text-gray-300">
             <X className="w-4 h-4" />
           </button>
         )}
