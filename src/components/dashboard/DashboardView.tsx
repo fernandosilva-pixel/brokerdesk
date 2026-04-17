@@ -154,8 +154,9 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
         {filtered.map(broker => {
           const bTickets = brokerTickets(broker.nome);
-          const pending = bTickets.filter(t => t.status === 'Pendente').length;
-          const urgent = bTickets.filter(t => t.priority === 'Urgente').length;
+          const activeTickets = bTickets.filter(t => t.status !== 'Resolvido' && t.status !== 'Fechado');
+          const pending = activeTickets.filter(t => t.status === 'Pendente').length;
+          const urgent = activeTickets.filter(t => t.priority === 'Urgente').length;
           const devCount = bTickets.filter(t => t.isDev).length;
           const lastTicket = bTickets[0];
 
