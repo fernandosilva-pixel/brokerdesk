@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bell, X, Info, AlertTriangle, CheckCircle, XCircle, Sun, Moon, Menu } from 'lucide-react';
+import { Bell, X, Info, AlertTriangle, CheckCircle, XCircle, Menu } from 'lucide-react';
 import type { View } from './Sidebar';
 import { supabase } from '../../lib/supabase';
 import type { NotificationRow, Profile } from '../../lib/supabase';
-import { useTheme } from '../../hooks/useTheme';
 
 const titles: Record<View, { title: string; subtitle: string }> = {
   dashboard: { title: 'Dashboard',        subtitle: 'Visão geral das demandas' },
@@ -29,7 +28,6 @@ interface HeaderProps {
 
 export default function Header({ activeView, profile, onSignOut, onMobileMenuToggle }: HeaderProps) {
   const { title, subtitle } = titles[activeView];
-  const { theme, toggleTheme } = useTheme();
   const [notifications, setNotifications] = useState<NotificationRow[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [unread, setUnread] = useState(0);
@@ -84,15 +82,6 @@ export default function Header({ activeView, profile, onSignOut, onMobileMenuTog
         <h1 className="text-sm md:text-base font-semibold text-white leading-tight truncate">{title}</h1>
         <p className="text-xs text-gray-400 truncate hidden sm:block">{subtitle}</p>
       </div>
-
-      {/* Theme toggle */}
-      <button
-        onClick={toggleTheme}
-        className="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0"
-        title={theme === 'dark' ? 'Tema claro' : 'Tema escuro'}
-      >
-        {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-      </button>
 
       {/* Bell */}
       <div className="relative flex-shrink-0" ref={dropRef}>

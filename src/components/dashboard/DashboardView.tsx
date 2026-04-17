@@ -65,7 +65,11 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
       b.responsavel.toLowerCase().includes(searchTerm.toLowerCase())
     ), [searchTerm, brokers]);
 
-  const brokerTickets = (brokerNome: string) => tickets.filter(t => t.broker.nome === brokerNome);
+  // Unresolved tickets appear on every date; resolved/closed only on their own date
+  const brokerTickets = (brokerNome: string) => tickets.filter(t =>
+    t.broker.nome === brokerNome &&
+    (t.status !== 'Resolvido' && t.status !== 'Fechado' ? true : t.date === currentDate)
+  );
 
   const kpis = [
     { label: 'Total Brokers', value: brokers.length, color: 'text-blue-400', bg: 'bg-blue-500' },
