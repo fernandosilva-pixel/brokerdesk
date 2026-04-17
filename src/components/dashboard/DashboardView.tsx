@@ -123,22 +123,36 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
             <ChevronLeft className="w-4 h-4" />
           </button>
           <div className="flex gap-1 flex-1 overflow-hidden">
-            {visibleDates.map(date => (
-              <button
-                key={date.key}
-                onClick={() => setCurrentDate(date.key)}
-                className={`flex-1 flex flex-col items-center py-2 px-1 rounded-lg text-xs font-medium transition-all ${
-                  currentDate === date.key
-                    ? 'bg-blue-600 text-white shadow-sm'
-                    : date.isToday
-                    ? 'text-blue-400 bg-blue-900/30 hover:bg-blue-900/50'
-                    : 'text-gray-400 hover:bg-gray-700'
-                }`}
-              >
-                <span className="uppercase tracking-wide text-[10px]">{date.label}</span>
-                <span className="font-semibold mt-0.5">{date.sub}</span>
-              </button>
-            ))}
+            {visibleDates.map(date => {
+              const active = currentDate === date.key;
+              const dayNum = new Date(date.key + 'T12:00:00').getDate();
+              return (
+                <button
+                  key={date.key}
+                  onClick={() => setCurrentDate(date.key)}
+                  className="flex-1 flex flex-col items-center gap-1 py-2 px-1 transition-all"
+                >
+                  {/* Day label — hidden on mobile */}
+                  <span className={`hidden sm:block uppercase tracking-wide text-[10px] font-medium ${active ? 'text-blue-400' : date.isToday ? 'text-blue-400' : 'text-gray-500'}`}>
+                    {date.label}
+                  </span>
+                  {/* Circle with day number */}
+                  <span className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
+                    active
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : date.isToday
+                      ? 'bg-blue-900/40 text-blue-400 ring-1 ring-blue-500/50'
+                      : 'text-gray-400 hover:bg-gray-700'
+                  }`}>
+                    {dayNum}
+                  </span>
+                  {/* Month — hidden on mobile */}
+                  <span className={`hidden sm:block text-[10px] ${active ? 'text-blue-300' : 'text-gray-600'}`}>
+                    {new Date(date.key + 'T12:00:00').toLocaleDateString('pt-BR', { month: 'short' })}
+                  </span>
+                </button>
+              );
+            })}
           </div>
           <button
             onClick={() => setDateStart(Math.min(dates.length - 7, dateStart + 1))}
