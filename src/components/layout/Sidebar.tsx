@@ -34,7 +34,7 @@ export default function Sidebar({ activeView, onNavigate, collapsed, onToggle, i
       }`}
     >
       <div className={`flex items-center border-b border-gray-700 h-16 ${collapsed ? 'justify-center' : 'px-4 gap-3'}`}>
-        <img src="/mybroker.logotype-01.png" alt="MyBroker" className={collapsed ? 'h-7 w-auto' : 'h-8 w-auto'} />
+        <img src="https://uploadsww.s3.us-east-1.amazonaws.com/files/01JC6QYQQTSDG3PWRR7W7GHZQB/01KF7N0KEDSPRAC3DF7V0EKPM5/TICKET/TICKET_ATTACHMENT/01KPEFS4V8W11VVTJ3KBB4RSZ5.png" alt="BrokerDesk" className={collapsed ? 'h-7 w-auto' : 'h-8 w-auto'} />
         {!collapsed && <span className="text-sm font-semibold text-gray-200">BrokerDesk</span>}
       </div>
 
