@@ -167,6 +167,23 @@ html, body, #root {
 .kpi-card:hover { border-color: var(--border2); }
 
 /* ── Light theme — Tailwind overrides ── */
+
+/* Sidebar stays dark regardless of theme */
+[data-theme="light"] aside.bg-gray-900 { background-color: #111827 !important; }
+[data-theme="light"] aside .border-gray-700 { border-color: #1f2937 !important; }
+[data-theme="light"] aside .text-gray-200 { color: #e5e7eb !important; }
+[data-theme="light"] aside .text-gray-300 { color: #d1d5db !important; }
+[data-theme="light"] aside .text-gray-400 { color: #9ca3af !important; }
+[data-theme="light"] aside .text-gray-500 { color: #6b7280 !important; }
+[data-theme="light"] aside .text-gray-600 { color: #4b5563 !important; }
+[data-theme="light"] aside .hover\:bg-gray-800:hover { background-color: #1f2937 !important; }
+[data-theme="light"] aside .hover\:text-gray-100:hover { color: #f3f4f6 !important; }
+[data-theme="light"] aside .hover\:text-gray-300:hover { color: #d1d5db !important; }
+
+/* Active nav item text stays readable in both themes */
+[data-theme="light"] .active-nav-blue { color: #2563eb !important; }
+[data-theme="light"] .active-nav-purple { color: #7c3aed !important; }
+
 [data-theme="light"] .bg-gray-900  { background-color: #f0f2f6 !important; }
 [data-theme="light"] .bg-gray-800  { background-color: #ffffff !important; }
 [data-theme="light"] .bg-gray-700  { background-color: #f3f4f6 !important; }

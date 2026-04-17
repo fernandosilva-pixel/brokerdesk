@@ -44,8 +44,8 @@ export default function Sidebar({ activeView, onNavigate, collapsed, onToggle, i
           src="https://uploadsww.s3.us-east-1.amazonaws.com/files/01JC6QYQQTSDG3PWRR7W7GHZQB/01KF7N0KEDSPRAC3DF7V0EKPM5/TICKET/TICKET_ATTACHMENT/01KPEFS4V8W11VVTJ3KBB4RSZ5.png"
           alt="BrokerDesk"
           className={collapsed ? 'h-7 w-auto' : 'h-8 w-auto'}
+          onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
         />
-        {!collapsed && <span className="text-sm font-semibold text-gray-200 flex-1">BrokerDesk</span>}
         {/* Close button — mobile only */}
         {!collapsed && (
           <button onClick={onMobileClose} className="md:hidden p-1 text-gray-500 hover:text-gray-300">
@@ -65,11 +65,11 @@ export default function Sidebar({ activeView, onNavigate, collapsed, onToggle, i
               title={collapsed ? label : undefined}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 group relative ${
                 active
-                  ? adminOnly ? 'bg-purple-600/20 text-purple-400' : 'bg-blue-600/20 text-blue-400'
+                  ? adminOnly ? 'bg-purple-600/20 text-purple-400 active-nav-purple' : 'bg-blue-600/20 text-blue-400 active-nav-blue'
                   : 'text-gray-400 hover:bg-gray-800 hover:text-gray-100'
               }`}
             >
-              <Icon className={`w-4 h-4 flex-shrink-0 ${active ? (adminOnly ? 'text-purple-400' : 'text-blue-400') : 'text-gray-500 group-hover:text-gray-300'}`} />
+              <Icon className={`w-4 h-4 flex-shrink-0 ${active ? (adminOnly ? 'text-purple-400 active-nav-purple' : 'text-blue-400 active-nav-blue') : 'text-gray-500 group-hover:text-gray-300'}`} />
               {!collapsed && <span className="truncate">{label}</span>}
               {active && <span className={`absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-r ${adminOnly ? 'bg-purple-500' : 'bg-blue-500'}`} />}
             </button>

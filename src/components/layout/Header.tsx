@@ -70,7 +70,7 @@ export default function Header({ activeView, profile, onSignOut, onMobileMenuTog
   const displayEmail = profile?.email ?? '';
 
   return (
-    <header className="h-16 bg-gray-800 border-b border-gray-700 flex items-center px-4 md:px-6 gap-3 sticky top-0 z-20">
+    <header className="h-16 border-b border-gray-700 flex items-center px-4 md:px-6 gap-3 sticky top-0 z-20" style={{ backgroundColor: '#111827' }}>
       {/* Hamburger — mobile only */}
       <button
         onClick={onMobileMenuToggle}
