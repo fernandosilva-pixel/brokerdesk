@@ -164,6 +164,50 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
         </div>
       </div>
 
+      {/* Featured Brokers */}
+      {(() => {
+        const FEATURED = ['Option Market','Clarus Option','Tourex','Axiun','Tradex Id','Ember','Dupocket','Hiove','Orion Option','Peak Broker'];
+        const featuredBrokers = FEATURED.map(nome => brokers.find(b => b.nome === nome)).filter(Boolean) as Broker[];
+        if (featuredBrokers.length === 0) return null;
+        return (
+          <div className="bg-gray-800 rounded-xl border border-gray-700 shadow-sm p-4">
+            <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-3">Mais frequentes</p>
+            <div className="flex flex-wrap gap-2">
+              {featuredBrokers.map(broker => {
+                const bt = brokerTickets(broker.nome);
+                const active = bt.filter(t => t.status !== 'Resolvido' && t.status !== 'Fechado');
+                const hasUrgent = active.some(t => t.priority === 'Urgente');
+                const hasPending = active.some(t => t.status === 'Pendente');
+                const isClean = active.length === 0;
+                return (
+                  <button
+                    key={broker.nome}
+                    onClick={() => setCreateModal(broker)}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs font-medium transition-all ${
+                      hasUrgent
+                        ? 'border-red-700/60 bg-red-900/20 text-red-300 hover:bg-red-900/30'
+                        : hasPending
+                        ? 'border-yellow-700/60 bg-yellow-900/20 text-yellow-300 hover:bg-yellow-900/30'
+                        : isClean
+                        ? 'border-green-700/40 bg-green-900/10 text-green-400 hover:bg-green-900/20'
+                        : 'border-gray-700 bg-gray-700/40 text-gray-300 hover:bg-gray-700'
+                    }`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${hasUrgent ? 'bg-red-400' : hasPending ? 'bg-yellow-400' : isClean ? 'bg-green-400' : 'bg-blue-400'}`} />
+                    {broker.nome}
+                    {active.length > 0 && (
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${hasUrgent ? 'bg-red-900/40 text-red-400' : 'bg-yellow-900/40 text-yellow-400'}`}>
+                        {active.length}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Broker Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
         {filtered.map(broker => {

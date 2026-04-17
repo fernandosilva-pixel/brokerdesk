@@ -69,7 +69,7 @@ export default function AdminView() {
       const { error } = await supabase.from('brokers').update(brokerForm).eq('id', editingBroker.id);
       if (error) { setBError(error.message); setBSaving(false); return; }
     } else {
-      const { error } = await supabase.from('brokers').insert(brokerForm);
+      const { error } = await supabase.from('brokers').insert({ ...brokerForm, ativo: true });
       if (error) { setBError(error.message); setBSaving(false); return; }
     }
     await loadBrokers();
