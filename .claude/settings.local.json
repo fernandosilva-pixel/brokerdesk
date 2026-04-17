@@ -6,7 +6,13 @@
       "Bash(/opt/homebrew/bin/npm run *)",
       "Bash(git add *)",
       "Bash(git commit *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(npm run *)",
+      "Bash(git revert *)",
+      "Bash(npm install *)",
+      "Bash(npm list *)",
+      "Bash(sed -i '' 's/import { supabase, isSupabaseConfigured } from/import { supabase } from/g' /Users/fernandohenrique/Desktop/brokerdesk/src/components/TicketCard.tsx /Users/fernandohenrique/Desktop/brokerdesk/src/components/AssignedTicketsModal.tsx /Users/fernandohenrique/Desktop/brokerdesk/src/components/PendingTicketsModal.tsx)",
+      "Bash(sed -i '' 's/if \\(!isSupabaseConfigured\\(\\) || !supabase\\)/if \\(!supabase\\)/g' /Users/fernandohenrique/Desktop/brokerdesk/src/components/TicketCard.tsx /Users/fernandohenrique/Desktop/brokerdesk/src/components/AssignedTicketsModal.tsx /Users/fernandohenrique/Desktop/brokerdesk/src/components/PendingTicketsModal.tsx)"
     ]
   }
 }

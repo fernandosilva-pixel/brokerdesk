@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, FileText, User, Circle, Play, CheckCircle } from 'lucide-react';
-import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 
 interface AssignedTicket {
   id: string;
@@ -32,7 +32,7 @@ export default function AssignedTicketsModal({ isOpen, onClose, currentUser }: A
 
   const loadAssignedTickets = async () => {
     setIsLoading(true);
-    if (!isSupabaseConfigured() || !supabase) {
+    if (!supabase) {
       const mockTickets: AssignedTicket[] = [
         {
           id: '1',

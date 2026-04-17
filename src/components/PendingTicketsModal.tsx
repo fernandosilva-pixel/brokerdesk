@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Flag, AlertTriangle, Circle, Play, Calendar } from 'lucide-react';
-import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 
 interface PendingTicket {
   id: string;
@@ -30,7 +30,7 @@ export default function PendingTicketsModal({ isOpen, onClose }: PendingTicketsM
 
   const loadPendingTickets = async () => {
     setIsLoading(true);
-    if (!isSupabaseConfigured() || !supabase) {
+    if (!supabase) {
       const mockTickets: PendingTicket[] = [
         {
           id: '1',

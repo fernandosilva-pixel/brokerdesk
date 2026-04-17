@@ -3,7 +3,7 @@ import {
   ExternalLink, X, FileText, Clock, AlertTriangle,
   CheckCircle, Circle, Play, Plus, BarChart3
 } from 'lucide-react';
-import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 import type { Broker, Ticket } from '../data/brokers';
 
 interface TicketCardProps {
@@ -52,7 +52,7 @@ export default function TicketCard({
   }, [broker.nome, currentDate]);
 
   const loadTickets = async () => {
-    if (!isSupabaseConfigured() || !supabase) {
+    if (!supabase) {
       const mockTickets: Ticket[] = [
         {
           id: '1',
@@ -77,7 +77,7 @@ export default function TicketCard({
     if (!newTicket.title.trim() || !newTicket.createdBy.trim()) return;
     setIsLoading(true);
 
-    if (!isSupabaseConfigured() || !supabase) {
+    if (!supabase) {
       const ticket: Ticket = {
         id: Date.now().toString(),
         broker,

@@ -4,12 +4,12 @@ import {
   Circle, Play, CheckCircle, AlertTriangle,
   FileText, Clock, ChevronLeft, ChevronRight, Code2,
 } from 'lucide-react';
-import { brokers } from '../../data/brokers';
 import type { Broker, Ticket } from '../../data/brokers';
 
 interface DashboardViewProps {
   searchTerm: string;
   currentUser: string;
+  brokers: Broker[];
   tickets: Ticket[];
   onAddTicket: (ticket: Ticket) => void;
   onUpdateTicket: (id: string, status: Ticket['status']) => void;
@@ -43,7 +43,7 @@ const priorityConfig = {
   Baixa: { color: 'bg-green-500 text-white', border: 'border-l-green-400' },
 } as const;
 
-export default function DashboardView({ searchTerm, currentUser, tickets, onAddTicket, onUpdateTicket }: DashboardViewProps) {
+export default function DashboardView({ searchTerm, currentUser, brokers, tickets, onAddTicket, onUpdateTicket }: DashboardViewProps) {
   const [currentDate, setCurrentDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [dateStart, setDateStart] = useState(0);
   const [createModal, setCreateModal] = useState<Broker | null>(null);
@@ -63,7 +63,7 @@ export default function DashboardView({ searchTerm, currentUser, tickets, onAddT
     brokers.filter(b =>
       b.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
       b.responsavel.toLowerCase().includes(searchTerm.toLowerCase())
-    ), [searchTerm]);
+    ), [searchTerm, brokers]);
 
   const brokerTickets = (brokerNome: string) => tickets.filter(t => t.broker.nome === brokerNome);
 
