@@ -69,11 +69,24 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
   const dates = useMemo(() => generateDates(), []);
   const visibleDates = dates.slice(dateStart, dateStart + 7);
 
-  const filtered = useMemo(() =>
-    brokers.filter(b =>
-      b.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      b.responsavel.toLowerCase().includes(searchTerm.toLowerCase())
-    ), [searchTerm, brokers]);
+  const filtered = useMemo(() => {
+    const brokerPriority = (nome: string) => {
+      const active = tickets.filter(t =>
+        t.broker.nome === nome && t.status !== 'Resolvido' && t.status !== 'Fechado'
+      );
+      if (active.some(t => t.priority === 'Urgente')) return 0;
+      if (active.some(t => t.status === 'Pendente')) return 1;
+      if (active.length > 0) return 2; // Em Andamento only
+      return 3; // clean
+    };
+
+    return brokers
+      .filter(b =>
+        b.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        b.responsavel.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+      .sort((a, b) => brokerPriority(a.nome) - brokerPriority(b.nome));
+  }, [searchTerm, brokers, tickets]);
 
   // Unresolved tickets appear on every date; resolved/closed only on their own date
   const brokerTickets = (brokerNome: string) => tickets.filter(t =>
