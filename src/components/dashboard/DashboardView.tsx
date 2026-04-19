@@ -264,9 +264,6 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
                   <p className="text-xs text-gray-500 mt-0.5">{broker.responsavel}</p>
                 </div>
                 <div className="flex items-center gap-1.5 ml-2">
-                  <a href={broker.dominio} target="_blank" rel="noopener noreferrer" className="p-1.5 text-gray-500 hover:text-blue-400 hover:bg-gray-700 rounded-lg transition-colors">
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
                   <button
                     onClick={() => setCreateModal(broker)}
                     className="flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
@@ -343,14 +340,25 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
               )}
 
               {/* Footer */}
-              <div className="mt-auto px-4 pb-3 pt-2 border-t border-gray-700/50">
+              <div className="mt-auto px-4 pb-3 pt-2 border-t border-gray-700/50 flex gap-2">
                 <button
                   onClick={() => setReportModal(broker)}
-                  className="w-full flex items-center justify-center gap-1.5 text-xs font-medium text-gray-500 hover:text-blue-400 hover:bg-gray-700 py-1.5 rounded-lg transition-colors"
+                  className="flex-1 flex items-center justify-center gap-1.5 text-xs font-medium text-gray-500 hover:text-blue-400 hover:bg-gray-700 py-1.5 rounded-lg transition-colors"
                 >
                   <BarChart3 className="w-3.5 h-3.5" />
                   Ver Relatório
                 </button>
+                {broker.dominio && (
+                  <a
+                    href={broker.dominio.startsWith('http') ? broker.dominio : `https://${broker.dominio}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 flex items-center justify-center gap-1.5 text-xs font-medium text-gray-500 hover:text-green-400 hover:bg-gray-700 py-1.5 rounded-lg transition-colors"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    Ir para Admin
+                  </a>
+                )}
               </div>
             </div>
           );

@@ -315,7 +315,7 @@ export default function AdminView() {
               {[
                 { key: 'nome', label: 'Nome *', placeholder: 'Ex: Hiove' },
                 { key: 'responsavel', label: 'Responsável *', placeholder: 'Nome do responsável' },
-                { key: 'dominio', label: 'Domínio', placeholder: 'https://exemplo.com' },
+                { key: 'dominio', label: 'URL do Painel Admin', placeholder: 'https://admin.exemplo.com' },
                 { key: 'email', label: 'E-mail', placeholder: 'contato@exemplo.com' },
                 { key: 'telefone', label: 'Telefone', placeholder: '+55 11 99000-0000' },
               ].map(({ key, label, placeholder }) => (
