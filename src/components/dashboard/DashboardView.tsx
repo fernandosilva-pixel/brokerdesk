@@ -20,7 +20,15 @@ function generateDates() {
   const dates = [];
   const today = new Date();
   const todayKey = today.toISOString().split('T')[0];
+  // 30 days in the past
+  for (let i = 30; i >= 1; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    dates.push({ key: d.toISOString().split('T')[0], label: d.toLocaleDateString('pt-BR', { weekday: 'short' }), sub: d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }), isToday: false });
+  }
+  // today
   dates.push({ key: todayKey, label: 'Hoje', sub: today.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }), isToday: true });
+  // 30 days ahead
   for (let i = 1; i <= 30; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
@@ -28,6 +36,7 @@ function generateDates() {
   }
   return dates;
 }
+const TODAY_KEY = new Date().toISOString().split('T')[0];
 
 const statusConfig = {
   Pendente: { color: 'bg-red-900/40 text-red-400 border-red-700', dot: 'bg-red-500', Icon: Circle },
@@ -45,8 +54,8 @@ const priorityConfig = {
 } as const;
 
 export default function DashboardView({ searchTerm, currentUser, brokers, tickets, onAddTicket, onUpdateTicket }: DashboardViewProps) {
-  const [currentDate, setCurrentDate] = useState(() => new Date().toISOString().split('T')[0]);
-  const [dateStart, setDateStart] = useState(0);
+  const [currentDate, setCurrentDate] = useState(TODAY_KEY);
+  const [dateStart, setDateStart] = useState(27); // starts so today is visible (index 30, show 30-36)
   const [createModal, setCreateModal] = useState<Broker | null>(null);
   const [reportModal, setReportModal] = useState<Broker | null>(null);
   const [newTicket, setNewTicket] = useState({
@@ -76,7 +85,7 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
     { label: 'Total Brokers', value: brokers.length, color: 'text-blue-400', bg: 'bg-blue-500' },
     { label: 'Tickets Pendentes', value: tickets.filter(t => t.status === 'Pendente').length, color: 'text-red-400', bg: 'bg-red-500' },
     { label: 'Em Andamento', value: tickets.filter(t => t.status === 'Em Andamento').length, color: 'text-yellow-400', bg: 'bg-yellow-500' },
-    { label: 'Resolvidos Hoje', value: tickets.filter(t => t.status === 'Resolvido').length, color: 'text-green-400', bg: 'bg-green-500' },
+    { label: 'Resolvidos Hoje', value: tickets.filter(t => t.status === 'Resolvido' && t.updatedAt?.startsWith(TODAY_KEY)).length, color: 'text-green-400', bg: 'bg-green-500' },
   ];
 
   const handleCreateTicket = () => {
