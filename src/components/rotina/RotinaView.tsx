@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CheckCircle2, Circle, Plus, Trash2, Clock, Calendar, RefreshCw } from 'lucide-react';
+import { sendWebhook, isInNotifyWindow } from '../../lib/webhook';
 
 interface Task {
   id: string;
@@ -23,7 +24,7 @@ const DEFAULT_TASKS: Task[] = [
 const STORAGE_KEY = 'brokerdesk_rotina';
 const DATE_KEY = 'brokerdesk_rotina_date';
 
-export default function RotinaView() {
+export default function RotinaView({ currentUser }: { currentUser?: string }) {
   const today = new Date().toISOString().split('T')[0];
 
   const [tasks, setTasks] = useState<Task[]>(() => {
@@ -45,7 +46,17 @@ export default function RotinaView() {
     localStorage.setItem(DATE_KEY, today);
   }, [tasks, today]);
 
-  const toggle = (id: string) => setTasks(prev => prev.map(t => t.id === id ? { ...t, done: !t.done } : t));
+  const toggle = (id: string) => {
+    const task = tasks.find(t => t.id === id);
+    if (task && !task.done && isInNotifyWindow()) {
+      sendWebhook({
+        event: 'routine_task_completed',
+        task: { title: task.title, category: task.category, completed_by: currentUser ?? 'Operador' },
+        timestamp: new Date().toISOString(),
+      });
+    }
+    setTasks(prev => prev.map(t => t.id === id ? { ...t, done: !t.done } : t));
+  };
   const remove = (id: string) => setTasks(prev => prev.filter(t => t.id !== id));
 
   const addTask = () => {

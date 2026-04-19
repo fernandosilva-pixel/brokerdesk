@@ -2,13 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   MessageCircle, Send, Settings2, CheckCircle2, AlertTriangle,
   RefreshCw, Bell, Clock, Plus, Trash2, X, QrCode, Phone,
-  Lock, Zap, Wifi, WifiOff,
+  Lock, Zap, Wifi, WifiOff, Globe,
 } from 'lucide-react';
 
 interface ZApiConfig {
   instanceId: string;
   token: string;
   defaultPhone: string;
+  n8nWebhookUrl: string;
 }
 
 interface AlertTemplate {
@@ -290,6 +291,19 @@ export default function WhatsAppView() {
                   placeholder="5511999999999"
                 />
                 <p className="text-[11px] text-gray-500 mt-1">DDI + DDD + número, sem espaços ou símbolos</p>
+              </div>
+              <div>
+                <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-300 mb-1.5">
+                  <Globe className="w-3.5 h-3.5 text-gray-400" /> Webhook URL (n8n)
+                </label>
+                <input
+                  type="url"
+                  value={config.n8nWebhookUrl || ''}
+                  onChange={e => setConfig(p => ({ ...p, n8nWebhookUrl: e.target.value }))}
+                  className="w-full px-3 py-2.5 text-sm bg-gray-900 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-white placeholder-gray-500"
+                  placeholder="https://seu-n8n.com/webhook/brokerdesk"
+                />
+                <p className="text-[11px] text-gray-500 mt-1">URL do webhook do n8n — todos os eventos do sistema são enviados aqui</p>
               </div>
 
               <div className="flex gap-3 pt-2">

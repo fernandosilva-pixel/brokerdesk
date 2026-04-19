@@ -7,6 +7,7 @@ import {
 import { supabase } from '../../lib/supabase';
 import type { BrokerRow, NotificationRow } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
+import { sendWebhook, isInNotifyWindow } from '../../lib/webhook';
 
 type Tab = 'brokers' | 'notifications';
 
@@ -94,7 +95,14 @@ export default function AdminView() {
     setNSaving(true); setNError(''); setNSuccess('');
     const { error } = await supabase.from('notifications').insert({ ...notifForm, created_by: user?.id });
     if (error) { setNError(error.message); }
-    else { setNSuccess('Notificação enviada!'); setNotifForm(emptyNotif); await loadNotifications(); }
+    else {
+      setNSuccess('Notificação enviada!');
+      if (isInNotifyWindow()) {
+        sendWebhook({ event: 'admin_notification', notification: { title: notifForm.title, message: notifForm.message, type: notifForm.type }, timestamp: new Date().toISOString() });
+      }
+      setNotifForm(emptyNotif);
+      await loadNotifications();
+    }
     setNSaving(false);
   };
 

@@ -4,6 +4,7 @@ import {
   FileText, AlertTriangle, Search,
 } from 'lucide-react';
 import type { Ticket } from '../../data/brokers';
+import { isOverdue, dateLabel, isCreatedToday } from '../../lib/ticketUtils';
 
 interface DemandasTechViewProps {
   tickets: Ticket[];
@@ -140,7 +141,6 @@ export default function DemandasTechView({ tickets, onUpdateTicket }: DemandasTe
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                      {/* Broker tag */}
                       <span className="flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 bg-purple-900/30 text-purple-300 border border-purple-700/40 rounded-full">
                         <Code2 className="w-2.5 h-2.5" />
                         {ticket.broker.nome}
@@ -151,6 +151,11 @@ export default function DemandasTechView({ tickets, onUpdateTicket }: DemandasTe
                       {(ticket.priority === 'Urgente' || ticket.priority === 'Alta') && (
                         <AlertTriangle className="w-3 h-3 text-orange-400" />
                       )}
+                      {isOverdue(ticket) && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-orange-900/40 text-orange-400 border border-orange-700/50">
+                          ⏰ Atrasado
+                        </span>
+                      )}
                     </div>
 
                     <p className="text-sm font-semibold text-white mb-1">{ticket.title}</p>
@@ -158,12 +163,17 @@ export default function DemandasTechView({ tickets, onUpdateTicket }: DemandasTe
                       <p className="text-xs text-gray-400 leading-relaxed">{ticket.description}</p>
                     )}
 
-                    <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                    <div className="flex items-center gap-4 mt-2 text-xs text-gray-500 flex-wrap">
                       <span>Por: <span className="text-gray-300">{ticket.createdBy}</span></span>
                       {ticket.assignedTo && (
                         <span>Para: <span className="text-blue-400">{ticket.assignedTo}</span></span>
                       )}
-                      <span className="text-gray-600">{ticket.broker.responsavel}</span>
+                      {!isCreatedToday(ticket.createdAt) && (
+                        <span>
+                          📅 {new Date(ticket.createdAt).toLocaleDateString('pt-BR')}
+                          {' '}<span className="text-orange-400/80">({dateLabel(ticket.createdAt)})</span>
+                        </span>
+                      )}
                     </div>
                   </div>
 

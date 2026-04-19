@@ -8,9 +8,12 @@ import RotinaView from './components/rotina/RotinaView';
 import WhatsAppView from './components/whatsapp/WhatsAppView';
 import AdminView from './components/admin/AdminView';
 import LoginView from './components/auth/LoginView';
+import OverdueAlert from './components/common/OverdueAlert';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { ThemeProvider } from './hooks/useTheme';
 import { supabase } from './lib/supabase';
+import { sendWebhook, isInNotifyWindow } from './lib/webhook';
+import { isOverdue, daysAgo } from './lib/ticketUtils';
 import type { Broker, Ticket } from './data/brokers';
 import type { BrokerRow, TicketRow } from './lib/supabase';
 
@@ -32,6 +35,8 @@ function ticketFromRow(row: TicketRow, brokers: Broker[]): Ticket {
   };
 }
 
+const THREE_HOURS = 3 * 60 * 60 * 1000;
+
 function AppInner() {
   const { user, profile, isAdmin, signOut, loading } = useAuth();
   const [activeView, setActiveView] = useState<View>('dashboard');
@@ -41,6 +46,7 @@ function AppInner() {
   const [brokers, setBrokers] = useState<Broker[]>([]);
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
+  const [overdueTickets, setOverdueTickets] = useState<Ticket[]>([]);
 
   const loadData = useCallback(async () => {
     setDataLoading(true);
@@ -56,7 +62,37 @@ function AppInner() {
 
   useEffect(() => { if (user) loadData(); }, [user, loadData]);
 
-  // Close mobile menu on view change
+  // ── Overdue checker — runs on mount + every 3 hours ──
+  const runOverdueCheck = useCallback(() => {
+    const overdue = tickets.filter(isOverdue);
+    setOverdueTickets(overdue);
+
+    if (overdue.length > 0 && isInNotifyWindow()) {
+      sendWebhook({
+        event: 'overdue_check',
+        total_atrasados: overdue.length,
+        tickets: overdue.map(t => ({
+          ticket_id: t.id,
+          titulo: t.title,
+          broker: t.broker.nome,
+          status: t.status,
+          priority: t.priority,
+          data_criacao: t.createdAt,
+          dias_em_aberto: daysAgo(t.createdAt),
+          atrasado: true,
+        })),
+        timestamp: new Date().toISOString(),
+      });
+    }
+  }, [tickets]);
+
+  useEffect(() => {
+    if (!user || dataLoading) return;
+    runOverdueCheck();
+    const interval = setInterval(runOverdueCheck, THREE_HOURS);
+    return () => clearInterval(interval);
+  }, [runOverdueCheck, user, dataLoading]);
+
   const navigate = (view: View) => {
     setActiveView(view);
     setSearchTerm('');
@@ -77,13 +113,44 @@ function AppInner() {
       date: ticket.date,
     }).select().single();
     if (!error && data) {
-      setTickets(prev => [ticketFromRow(data as TicketRow, brokers), ...prev]);
+      const newTicket = ticketFromRow(data as TicketRow, brokers);
+      setTickets(prev => [newTicket, ...prev]);
+      if (isInNotifyWindow()) {
+        sendWebhook({
+          event: 'ticket_created',
+          ticket: {
+            id: newTicket.id,
+            title: newTicket.title,
+            broker: newTicket.broker.nome,
+            priority: newTicket.priority,
+            created_by: newTicket.createdBy,
+            is_dev: newTicket.isDev,
+          },
+          timestamp: new Date().toISOString(),
+        });
+      }
     }
   };
 
   const onUpdateTicket = async (id: string, status: Ticket['status']) => {
     await supabase.from('tickets').update({ status, updated_at: new Date().toISOString() }).eq('id', id);
     setTickets(prev => prev.map(t => t.id === id ? { ...t, status, updatedAt: new Date().toISOString() } : t));
+
+    if (status === 'Resolvido' && isInNotifyWindow()) {
+      const ticket = tickets.find(t => t.id === id);
+      if (ticket) {
+        sendWebhook({
+          event: 'ticket_resolved',
+          ticket: {
+            id,
+            title: ticket.title,
+            broker: ticket.broker.nome,
+            resolved_by: profile?.email ?? 'Operador',
+          },
+          timestamp: new Date().toISOString(),
+        });
+      }
+    }
   };
 
   if (loading) {
@@ -119,7 +186,7 @@ function AppInner() {
       case 'demandas':
         return <DemandasTechView tickets={tickets} onUpdateTicket={onUpdateTicket} />;
       case 'rotina':
-        return <RotinaView />;
+        return <RotinaView currentUser={profile?.email ?? user.email ?? ''} />;
       case 'whatsapp':
         return <WhatsAppView />;
       case 'admin':
@@ -129,7 +196,8 @@ function AppInner() {
 
   return (
     <div className="min-h-screen bg-gray-900">
-      {/* Mobile overlay */}
+      <OverdueAlert tickets={overdueTickets} />
+
       {mobileMenuOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-20 md:hidden"
@@ -148,7 +216,6 @@ function AppInner() {
         onMobileClose={() => setMobileMenuOpen(false)}
       />
 
-      {/* Main content — offset only on md+ */}
       <div className={`${sidebarCollapsed ? 'md:ml-16' : 'md:ml-60'} transition-all duration-200 flex flex-col min-h-screen`}>
         <Header
           activeView={activeView}

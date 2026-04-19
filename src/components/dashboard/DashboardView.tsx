@@ -5,6 +5,7 @@ import {
   FileText, Clock, ChevronLeft, ChevronRight, Code2,
 } from 'lucide-react';
 import type { Broker, Ticket } from '../../data/brokers';
+import { isOverdue, dateLabel, isCreatedToday } from '../../lib/ticketUtils';
 
 interface DashboardViewProps {
   searchTerm: string;
@@ -476,6 +477,11 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
                           <div className="flex items-center gap-2 mb-1 flex-wrap">
                             <p className="text-sm font-semibold text-white truncate">{ticket.title}</p>
                             <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${pcfg?.color}`}>{ticket.priority}</span>
+                            {isOverdue(ticket) && (
+                              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-orange-900/40 text-orange-400 border border-orange-700/50">
+                                ⏰ Atrasado
+                              </span>
+                            )}
                             {ticket.isDev && (
                               <span className="flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 bg-purple-900/50 text-purple-400 border border-purple-700/50 rounded">
                                 <Code2 className="w-2.5 h-2.5" /> Tech
@@ -486,6 +492,13 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
                           <div className="flex items-center gap-3 text-xs text-gray-500">
                             <span>Por: <span className="text-gray-300">{ticket.createdBy}</span></span>
                             {ticket.assignedTo && <span>Para: <span className="text-blue-400">{ticket.assignedTo}</span></span>}
+                            {!isCreatedToday(ticket.createdAt) && (
+                              <span className="text-gray-500">
+                                📅 {new Date(ticket.createdAt).toLocaleDateString('pt-BR')}
+                                {' '}
+                                <span className="text-orange-400/80">({dateLabel(ticket.createdAt)})</span>
+                              </span>
+                            )}
                           </div>
                         </div>
                         <div className="flex flex-col gap-2 items-end">
