@@ -91,7 +91,7 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
   // Unresolved tickets appear on every date; resolved/closed only on their own date
   const brokerTickets = (brokerNome: string) => tickets.filter(t =>
     t.broker.nome === brokerNome &&
-    (t.status !== 'Resolvido' && t.status !== 'Fechado' ? true : t.date === currentDate)
+    (t.status !== 'Resolvido' && t.status !== 'Fechado' ? t.date <= currentDate : t.date === currentDate)
   );
 
   const kpis = [
