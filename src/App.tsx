@@ -120,6 +120,7 @@ function AppInner() {
         ticket: {
           id: newTicket.id,
           title: newTicket.title,
+          description: newTicket.description,
           broker: newTicket.broker.nome,
           priority: newTicket.priority,
           created_by: newTicket.createdBy,

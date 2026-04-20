@@ -41,6 +41,17 @@ export type TicketRow = {
   updated_at: string;
 };
 
+export type RoutineTaskRow = {
+  id: string;
+  title: string;
+  description: string;
+  category: 'manha' | 'tarde' | 'custom';
+  time: string | null;
+  recorrente: boolean;
+  ativo: boolean;
+  created_at: string;
+};
+
 export type NotificationRow = {
   id: string;
   title: string;
