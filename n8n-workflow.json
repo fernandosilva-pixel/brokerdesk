@@ -21,7 +21,7 @@
       "typeVersion": 1,
       "position": [520, 200],
       "parameters": {
-        "jsCode": "const _b = $input.first().json.body;\nconst d = typeof _b === 'string' ? JSON.parse(_b) : _b;\nif (d.event !== 'ticket_created') return [];\n\nconst ALL_PHONES = ['573126402098', '5512981963736', '5512982871400'];\nconst t = d.ticket;\nconst pEmoji = { Urgente: '🚨', Alta: '⚠️', Média: '📋', Baixa: '📝' }[t.priority] || '📋';\nconst devTag = t.is_dev ? '\\n🛠️ *Tipo:* Demandas Tech' : '';\nconst desc = t.description ? `\\n📝 *Descrição:* ${t.description}` : '';\n\nconst message =\n  `🎫 *Novo Ticket — BrokerDesk*\\n\\n` +\n  `${pEmoji} *Prioridade:* ${t.priority}\\n` +\n  `🏢 *Broker:* ${t.broker}\\n` +\n  `📋 *Título:* ${t.title}` +\n  desc +\n  `\\n👤 *Aberto por:* ${t.created_by}` +\n  devTag +\n  `\\n\\n🕐 ${new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}`;\n\nreturn ALL_PHONES.map(phone => ({ json: { phone, message } }));"
+        "jsCode": "const _b = $input.first().json.body;\nconst d = typeof _b === 'string' ? JSON.parse(_b) : _b;\nif (d.event !== 'ticket_created') return [];\n\nconst ALL_PHONES = ['573126402098', '5512981963736', '5512982871400'];\nconst t = d.ticket;\nconst devTag = t.is_dev ? '\\n🛠️ *Tipo:* Demandas Tech' : '';\nconst desc = t.description ? `\\n📝 *Descrição:* ${t.description}` : '';\n\nconst message =\n  `🚨 *Novo Ticket — Suporte MyBroker* 🚨\\n\\n` +\n  `🕵🏻‍♂️ *Prioridade:* ${t.priority}\\n` +\n  `🏢 *Broker:* ${t.broker}\\n` +\n  `📋 *Título:* ${t.title}` +\n  desc +\n  `\\n👤 *Aberto por:* ${t.created_by}` +\n  devTag +\n  `\\n🕐 ${new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}`;\n\nreturn ALL_PHONES.map(phone => ({ json: { phone, message } }));"
       }
     },
     {
