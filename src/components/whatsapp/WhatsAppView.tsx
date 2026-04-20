@@ -157,12 +157,13 @@ export default function WhatsAppView() {
     if (!url) { setWebhookTestMsg('❌ URL do webhook não preenchida'); setTimeout(() => setWebhookTestMsg(''), 4000); return; }
     setWebhookTestMsg('Enviando...');
     try {
-      const res = await fetch(url, {
+      await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
         body: JSON.stringify({ event: 'test', message: 'Teste de conexão BrokerDesk', timestamp: new Date().toISOString() }),
       });
-      setWebhookTestMsg(res.ok ? '✅ Webhook enviado! Verifique o n8n.' : `❌ Erro ${res.status}`);
+      setWebhookTestMsg('✅ Enviado! Verifique se o n8n recebeu.');
     } catch {
       setWebhookTestMsg('❌ Falha ao conectar com o n8n');
     }

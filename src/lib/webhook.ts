@@ -5,7 +5,8 @@ export const sendWebhook = async (payload: object): Promise<void> => {
     if (!url) return;
     await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify(payload),
     });
   } catch { /* silent — webhook never breaks the app */ }
