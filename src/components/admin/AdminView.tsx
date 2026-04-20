@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   Plus, Trash2, Edit2, X, Check, Building2,
   Bell, AlertTriangle, Info, CheckCircle, XCircle,
-  Globe, Mail, Phone, User,
+  Globe, Mail, Phone, User, ShieldAlert,
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import type { BrokerRow, NotificationRow } from '../../lib/supabase';
@@ -18,12 +18,18 @@ const notifTypeConfig = {
   error:   { label: 'Erro',    Icon: XCircle,       color: 'text-red-400',    bg: 'bg-red-900/30',    border: 'border-red-700/50' },
 } as const;
 
+const SUPER_ADMIN = 'gregmbrk@proton.me';
+
 const emptyBroker = { nome: '', responsavel: '', dominio: '', email: '', telefone: '' };
 const emptyNotif = { title: '', message: '', type: 'info' as NotificationRow['type'], target_role: 'all' as NotificationRow['target_role'] };
 
 export default function AdminView() {
   const { user } = useAuth();
   const [tab, setTab] = useState<Tab>('brokers');
+  const [clearStep, setClearStep] = useState(0);
+  const [clearing, setClearing] = useState(false);
+
+  const isSuperAdmin = user?.email === SUPER_ADMIN;
 
   // Brokers
   const [brokers, setBrokers] = useState<BrokerRow[]>([]);
@@ -109,6 +115,15 @@ export default function AdminView() {
   const deleteNotification = async (id: string) => {
     await supabase.from('notifications').delete().eq('id', id);
     await loadNotifications();
+  };
+
+  const clearAllTickets = async () => {
+    if (clearStep === 0) { setClearStep(1); return; }
+    if (clearStep === 1) { setClearStep(2); return; }
+    setClearing(true);
+    await supabase.from('tickets').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    setClearing(false);
+    setClearStep(0);
   };
 
   return (
@@ -293,6 +308,45 @@ export default function AdminView() {
                   );
                 })}
               </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Zona Perigosa ── */}
+      {isSuperAdmin && (
+        <div className="bg-red-900/10 border border-red-700/30 rounded-xl p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <ShieldAlert className="w-4 h-4 text-red-400" />
+            <h3 className="text-sm font-semibold text-red-400">Zona Perigosa</h3>
+          </div>
+          <p className="text-xs text-gray-400 mb-4">Ações irreversíveis. Tenha certeza antes de prosseguir.</p>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={clearAllTickets}
+              disabled={clearing}
+              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-lg transition-all ${
+                clearStep === 0
+                  ? 'bg-red-900/30 border border-red-700/50 text-red-400 hover:bg-red-900/50'
+                  : clearStep === 1
+                  ? 'bg-red-600/40 border border-red-500 text-red-300 hover:bg-red-600/60 animate-pulse'
+                  : 'bg-red-600 border border-red-500 text-white hover:bg-red-700'
+              }`}
+            >
+              {clearing
+                ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                : <Trash2 className="w-4 h-4" />}
+              {clearStep === 0 && 'Limpar todos os tickets'}
+              {clearStep === 1 && 'Tem certeza? Clique para confirmar'}
+              {clearStep === 2 && '⚠️ CONFIRMAR — isso é irreversível'}
+            </button>
+            {clearStep > 0 && (
+              <button
+                onClick={() => setClearStep(0)}
+                className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
+              >
+                Cancelar
+              </button>
             )}
           </div>
         </div>
