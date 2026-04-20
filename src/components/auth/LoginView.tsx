@@ -36,11 +36,7 @@ export default function LoginView() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
-          <img src="https://uploadsww.s3.us-east-1.amazonaws.com/files/01JC6QYQQTSDG3PWRR7W7GHZQB/01KF7N0KEDSPRAC3DF7V0EKPM5/TICKET/TICKET_ATTACHMENT/01KPEFS4V8W11VVTJ3KBB4RSZ5.png" alt="BrokerDesk" className="h-10 mx-auto mb-4" />
-          <h1 className="text-xl font-semibold text-white">BrokerDesk</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            {mode === 'login' ? 'Acesse sua conta' : 'Crie sua conta'}
-          </p>
+          <img src="https://uploadsww.s3.us-east-1.amazonaws.com/files/01JC6QYQQTSDG3PWRR7W7GHZQB/01KF7N0KEDSPRAC3DF7V0EKPM5/TICKET/TICKET_ATTACHMENT/01KPEFS4V8W11VVTJ3KBB4RSZ5.png" alt="BrokerDesk" className="h-10 mx-auto" />
         </div>
 
         <div className="bg-gray-800 border border-gray-700 rounded-2xl p-6 shadow-2xl">
