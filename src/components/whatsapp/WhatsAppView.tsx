@@ -142,9 +142,31 @@ export default function WhatsAppView() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, isConfigured]);
 
+  const [saveMsg, setSaveMsg] = useState('');
+  const [webhookTestMsg, setWebhookTestMsg] = useState('');
+
   const saveConfig = () => {
     localStorage.setItem('zapi_config', JSON.stringify(config));
+    setSaveMsg('✅ Configuração salva!');
+    setTimeout(() => setSaveMsg(''), 3000);
     checkStatus();
+  };
+
+  const testWebhook = async () => {
+    const url = config.n8nWebhookUrl;
+    if (!url) { setWebhookTestMsg('❌ URL do webhook não preenchida'); setTimeout(() => setWebhookTestMsg(''), 4000); return; }
+    setWebhookTestMsg('Enviando...');
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event: 'test', message: 'Teste de conexão BrokerDesk', timestamp: new Date().toISOString() }),
+      });
+      setWebhookTestMsg(res.ok ? '✅ Webhook enviado! Verifique o n8n.' : `❌ Erro ${res.status}`);
+    } catch {
+      setWebhookTestMsg('❌ Falha ao conectar com o n8n');
+    }
+    setTimeout(() => setWebhookTestMsg(''), 5000);
   };
 
   const sendMessage = async (phone: string, message: string): Promise<boolean> => {
@@ -327,6 +349,16 @@ export default function WhatsAppView() {
                   Salvar Configuração
                 </button>
               </div>
+              {saveMsg && <p className="text-xs text-green-400 font-medium">{saveMsg}</p>}
+              <button
+                onClick={testWebhook}
+                disabled={!config.n8nWebhookUrl}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg transition-colors"
+              >
+                <Bell className="w-4 h-4" />
+                Testar Webhook n8n
+              </button>
+              {webhookTestMsg && <p className="text-xs font-medium text-gray-300">{webhookTestMsg}</p>}
 
               <div className="p-4 bg-gray-900 rounded-xl border border-gray-700 space-y-1.5">
                 <p className="text-xs font-semibold text-gray-400">Como obter as credenciais</p>
