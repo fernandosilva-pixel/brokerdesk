@@ -12,7 +12,7 @@ import OverdueAlert from './components/common/OverdueAlert';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { ThemeProvider } from './hooks/useTheme';
 import { supabase } from './lib/supabase';
-import { sendWebhook, isInNotifyWindow } from './lib/webhook';
+import { sendWebhook } from './lib/webhook';
 import { isOverdue, daysAgo } from './lib/ticketUtils';
 import type { Broker, Ticket } from './data/brokers';
 import type { BrokerRow, TicketRow } from './lib/supabase';
@@ -67,7 +67,7 @@ function AppInner() {
     const overdue = tickets.filter(isOverdue);
     setOverdueTickets(overdue);
 
-    if (overdue.length > 0 && isInNotifyWindow()) {
+    if (overdue.length > 0) {
       sendWebhook({
         event: 'overdue_check',
         total_atrasados: overdue.length,
@@ -115,20 +115,18 @@ function AppInner() {
     if (!error && data) {
       const newTicket = ticketFromRow(data as TicketRow, brokers);
       setTickets(prev => [newTicket, ...prev]);
-      if (isInNotifyWindow()) {
-        sendWebhook({
-          event: 'ticket_created',
-          ticket: {
-            id: newTicket.id,
-            title: newTicket.title,
-            broker: newTicket.broker.nome,
-            priority: newTicket.priority,
-            created_by: newTicket.createdBy,
-            is_dev: newTicket.isDev,
-          },
-          timestamp: new Date().toISOString(),
-        });
-      }
+      sendWebhook({
+        event: 'ticket_created',
+        ticket: {
+          id: newTicket.id,
+          title: newTicket.title,
+          broker: newTicket.broker.nome,
+          priority: newTicket.priority,
+          created_by: newTicket.createdBy,
+          is_dev: newTicket.isDev,
+        },
+        timestamp: new Date().toISOString(),
+      });
     }
   };
 
@@ -136,7 +134,7 @@ function AppInner() {
     await supabase.from('tickets').update({ status, updated_at: new Date().toISOString() }).eq('id', id);
     setTickets(prev => prev.map(t => t.id === id ? { ...t, status, updatedAt: new Date().toISOString() } : t));
 
-    if (status === 'Resolvido' && isInNotifyWindow()) {
+    if (status === 'Resolvido') {
       const ticket = tickets.find(t => t.id === id);
       if (ticket) {
         sendWebhook({
