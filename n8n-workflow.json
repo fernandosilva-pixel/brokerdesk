@@ -14,7 +14,6 @@
         "options": {}
       }
     },
-
     {
       "id": "code-ticket-created",
       "name": "Novo Ticket — Formatar",
@@ -22,8 +21,7 @@
       "typeVersion": 1,
       "position": [520, 200],
       "parameters": {
-        "jsCode": "let _b = $input.first().json.body;
-const d = typeof _b === 'string' ? JSON.parse(_b) : _b;\nif (d.event !== 'ticket_created') return [];\n\nconst ADMIN_PHONE = '573126402098';\nconst t = d.ticket;\nconst pEmoji = { Urgente: '🚨', Alta: '⚠️', Média: '📋', Baixa: '📝' }[t.priority] || '📋';\nconst devTag = t.is_dev ? '\\n🛠️ *Tipo:* Demandas Tech' : '';\n\nconst message =\n  `🎫 *Novo Ticket — BrokerDesk*\\n\\n` +\n  `${pEmoji} *Prioridade:* ${t.priority}\\n` +\n  `🏢 *Broker:* ${t.broker}\\n` +\n  `📋 *Título:* ${t.title}\\n` +\n  `👤 *Aberto por:* ${t.created_by}` +\n  devTag +\n  `\\n\\n🕐 ${new Date().toLocaleString('pt-BR')}`;\n\nreturn [{ json: { phone: ADMIN_PHONE, message } }];"
+        "jsCode": "const _b = $input.first().json.body;\nconst d = typeof _b === 'string' ? JSON.parse(_b) : _b;\nif (d.event !== 'ticket_created') return [];\n\nconst ADMIN_PHONE = '573126402098';\nconst t = d.ticket;\nconst pEmoji = { Urgente: '🚨', Alta: '⚠️', Média: '📋', Baixa: '📝' }[t.priority] || '📋';\nconst devTag = t.is_dev ? '\\n🛠️ *Tipo:* Demandas Tech' : '';\n\nconst message =\n  `🎫 *Novo Ticket — BrokerDesk*\\n\\n` +\n  `${pEmoji} *Prioridade:* ${t.priority}\\n` +\n  `🏢 *Broker:* ${t.broker}\\n` +\n  `📋 *Título:* ${t.title}\\n` +\n  `👤 *Aberto por:* ${t.created_by}` +\n  devTag +\n  `\\n\\n🕐 ${new Date().toLocaleString('pt-BR')}`;\n\nreturn [{ json: { phone: ADMIN_PHONE, message } }];"
       }
     },
     {
@@ -45,7 +43,6 @@ const d = typeof _b === 'string' ? JSON.parse(_b) : _b;\nif (d.event !== 'ticket
         "options": {}
       }
     },
-
     {
       "id": "code-ticket-resolved",
       "name": "Ticket Resolvido — Formatar",
@@ -53,8 +50,7 @@ const d = typeof _b === 'string' ? JSON.parse(_b) : _b;\nif (d.event !== 'ticket
       "typeVersion": 1,
       "position": [520, 360],
       "parameters": {
-        "jsCode": "let _b = $input.first().json.body;
-const d = typeof _b === 'string' ? JSON.parse(_b) : _b;\nif (d.event !== 'ticket_resolved') return [];\n\nconst ADMIN_PHONE = '573126402098';\nconst t = d.ticket;\n\nconst message =\n  `✅ *Ticket Resolvido — BrokerDesk*\\n\\n` +\n  `🏢 *Broker:* ${t.broker}\\n` +\n  `📋 *Título:* ${t.title}\\n` +\n  `👤 *Resolvido por:* ${t.resolved_by || 'Operador'}\\n\\n` +\n  `🕐 ${new Date().toLocaleString('pt-BR')}`;\n\nreturn [{ json: { phone: ADMIN_PHONE, message } }];"
+        "jsCode": "const _b = $input.first().json.body;\nconst d = typeof _b === 'string' ? JSON.parse(_b) : _b;\nif (d.event !== 'ticket_resolved') return [];\n\nconst ADMIN_PHONE = '573126402098';\nconst t = d.ticket;\n\nconst message =\n  `✅ *Ticket Resolvido — BrokerDesk*\\n\\n` +\n  `🏢 *Broker:* ${t.broker}\\n` +\n  `📋 *Título:* ${t.title}\\n` +\n  `👤 *Resolvido por:* ${t.resolved_by || 'Operador'}\\n\\n` +\n  `🕐 ${new Date().toLocaleString('pt-BR')}`;\n\nreturn [{ json: { phone: ADMIN_PHONE, message } }];"
       }
     },
     {
@@ -76,7 +72,6 @@ const d = typeof _b === 'string' ? JSON.parse(_b) : _b;\nif (d.event !== 'ticket
         "options": {}
       }
     },
-
     {
       "id": "code-routine-completed",
       "name": "Tarefa Concluída — Formatar",
@@ -84,8 +79,7 @@ const d = typeof _b === 'string' ? JSON.parse(_b) : _b;\nif (d.event !== 'ticket
       "typeVersion": 1,
       "position": [520, 520],
       "parameters": {
-        "jsCode": "let _b = $input.first().json.body;
-const d = typeof _b === 'string' ? JSON.parse(_b) : _b;\nif (d.event !== 'routine_task_completed') return [];\n\nconst ADMIN_PHONE = '573126402098';\nconst task = d.task;\nconst cat = { manha: '🌅 Manhã', tarde: '🌇 Tarde', custom: '📌 Extra' }[task.category] || task.category;\n\nconst message =\n  `☑️ *Tarefa de Rotina Concluída — BrokerDesk*\\n\\n` +\n  `📋 *Tarefa:* ${task.title}\\n` +\n  `🗂️ *Período:* ${cat}\\n` +\n  `👤 *Operador:* ${task.completed_by || 'Operador'}\\n\\n` +\n  `🕐 ${new Date().toLocaleString('pt-BR')}`;\n\nreturn [{ json: { phone: ADMIN_PHONE, message } }];"
+        "jsCode": "const _b = $input.first().json.body;\nconst d = typeof _b === 'string' ? JSON.parse(_b) : _b;\nif (d.event !== 'routine_task_completed') return [];\n\nconst ADMIN_PHONE = '573126402098';\nconst task = d.task;\nconst cat = { manha: '🌅 Manhã', tarde: '🌇 Tarde', custom: '📌 Extra' }[task.category] || task.category;\n\nconst message =\n  `☑️ *Tarefa de Rotina Concluída — BrokerDesk*\\n\\n` +\n  `📋 *Tarefa:* ${task.title}\\n` +\n  `🗂️ *Período:* ${cat}\\n` +\n  `👤 *Operador:* ${task.completed_by || 'Operador'}\\n\\n` +\n  `🕐 ${new Date().toLocaleString('pt-BR')}`;\n\nreturn [{ json: { phone: ADMIN_PHONE, message } }];"
       }
     },
     {
@@ -107,7 +101,6 @@ const d = typeof _b === 'string' ? JSON.parse(_b) : _b;\nif (d.event !== 'routin
         "options": {}
       }
     },
-
     {
       "id": "code-admin-notif",
       "name": "Notificação Admin — Formatar",
@@ -115,8 +108,7 @@ const d = typeof _b === 'string' ? JSON.parse(_b) : _b;\nif (d.event !== 'routin
       "typeVersion": 1,
       "position": [520, 680],
       "parameters": {
-        "jsCode": "let _b = $input.first().json.body;
-const d = typeof _b === 'string' ? JSON.parse(_b) : _b;\nif (d.event !== 'admin_notification') return [];\n\nconst OPERATOR_PHONES = ['5512981963736', '5512982871400', '573126402098'];\nconst notif = d.notification;\nconst emojis = { info: 'ℹ️', success: '✅', warning: '⚠️', error: '🚨' };\nconst emoji = emojis[notif.type] || 'ℹ️';\n\nconst message =\n  `${emoji} *BrokerDesk — ${notif.title}*\\n\\n` +\n  `${notif.message}\\n\\n` +\n  `🕐 ${new Date().toLocaleString('pt-BR')}`;\n\nreturn OPERATOR_PHONES.map(phone => ({ json: { phone, message } }));"
+        "jsCode": "const _b = $input.first().json.body;\nconst d = typeof _b === 'string' ? JSON.parse(_b) : _b;\nif (d.event !== 'admin_notification') return [];\n\nconst OPERATOR_PHONES = ['5512981963736', '5512982871400', '573126402098'];\nconst notif = d.notification;\nconst emojis = { info: 'ℹ️', success: '✅', warning: '⚠️', error: '🚨' };\nconst emoji = emojis[notif.type] || 'ℹ️';\n\nconst message =\n  `${emoji} *BrokerDesk — ${notif.title}*\\n\\n` +\n  `${notif.message}\\n\\n` +\n  `🕐 ${new Date().toLocaleString('pt-BR')}`;\n\nreturn OPERATOR_PHONES.map(phone => ({ json: { phone, message } }));"
       }
     },
     {
@@ -138,7 +130,6 @@ const d = typeof _b === 'string' ? JSON.parse(_b) : _b;\nif (d.event !== 'admin_
         "options": {}
       }
     },
-
     {
       "id": "code-overdue",
       "name": "Tickets Atrasados — Formatar",
@@ -146,8 +137,7 @@ const d = typeof _b === 'string' ? JSON.parse(_b) : _b;\nif (d.event !== 'admin_
       "typeVersion": 1,
       "position": [520, 840],
       "parameters": {
-        "jsCode": "let _b = $input.first().json.body;
-const d = typeof _b === 'string' ? JSON.parse(_b) : _b;\nif (d.event !== 'overdue_check' || !d.tickets || d.tickets.length === 0) return [];\n\nconst OPERATOR_PHONES = ['5512981963736', '5512982871400', '573126402098'];\n\nconst lines = d.tickets.map(t =>\n  `• *${t.broker}* — ${t.titulo}\\n  📅 Criado: ${new Date(t.data_criacao).toLocaleDateString('pt-BR')} (${t.dias_em_aberto} dia${t.dias_em_aberto > 1 ? 's' : ''} em aberto)`\n).join('\\n\\n');\n\nconst message =\n  `🚨 *BrokerDesk — Demandas Atrasadas*\\n\\n` +\n  `${d.tickets.length} ticket${d.tickets.length > 1 ? 's' : ''} pendente${d.tickets.length > 1 ? 's' : ''} há mais de 3 dias:\\n\\n` +\n  lines +\n  `\\n\\n⚠️ Ação necessária!\\n🕐 ${new Date().toLocaleString('pt-BR')}`;\n\nreturn OPERATOR_PHONES.map(phone => ({ json: { phone, message } }));"
+        "jsCode": "const _b = $input.first().json.body;\nconst d = typeof _b === 'string' ? JSON.parse(_b) : _b;\nif (d.event !== 'overdue_check' || !d.tickets || d.tickets.length === 0) return [];\n\nconst OPERATOR_PHONES = ['5512981963736', '5512982871400', '573126402098'];\n\nconst lines = d.tickets.map(t =>\n  `• *${t.broker}* — ${t.titulo}\\n  📅 Criado: ${new Date(t.data_criacao).toLocaleDateString('pt-BR')} (${t.dias_em_aberto} dia${t.dias_em_aberto > 1 ? 's' : ''} em aberto)`\n).join('\\n\\n');\n\nconst message =\n  `🚨 *BrokerDesk — Demandas Atrasadas*\\n\\n` +\n  `${d.tickets.length} ticket${d.tickets.length > 1 ? 's' : ''} pendente${d.tickets.length > 1 ? 's' : ''} há mais de 3 dias:\\n\\n` +\n  lines +\n  `\\n\\n⚠️ Ação necessária!\\n🕐 ${new Date().toLocaleString('pt-BR')}`;\n\nreturn OPERATOR_PHONES.map(phone => ({ json: { phone, message } }));"
       }
     },
     {
@@ -169,7 +159,6 @@ const d = typeof _b === 'string' ? JSON.parse(_b) : _b;\nif (d.event !== 'overdu
         "options": {}
       }
     },
-
     {
       "id": "sched-daily",
       "name": "Rotina Diária — 08:00",
@@ -231,7 +220,6 @@ const d = typeof _b === 'string' ? JSON.parse(_b) : _b;\nif (d.event !== 'overdu
       }
     }
   ],
-
   "connections": {
     "Webhook BrokerDesk": {
       "main": [[
@@ -267,7 +255,6 @@ const d = typeof _b === 'string' ? JSON.parse(_b) : _b;\nif (d.event !== 'overdu
       "main": [[{ "node": "Resumo Diário — Enviar WhatsApp", "type": "main", "index": 0 }]]
     }
   },
-
   "active": false,
   "settings": { "executionOrder": "v1" },
   "tags": [],
