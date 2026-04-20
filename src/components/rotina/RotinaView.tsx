@@ -55,19 +55,23 @@ export default function RotinaView({ currentUser }: { currentUser?: string }) {
 
   const toggle = async (id: string) => {
     const task = tasks.find(t => t.id === id);
-    if (!task) return;
-    const newDone = !task.done;
-    const newState = { ...doneState, [id]: newDone };
+    if (!task || task.done) return;
+    const newState = { ...doneState, [id]: true };
     setDoneState(newState);
     saveDoneState(newState);
-    setTasks(prev => prev.map(t => t.id === id ? { ...t, done: newDone } : t));
-    if (newDone) {
-      sendWebhook({
-        event: 'routine_task_completed',
-        task: { title: task.title, category: task.category, completed_by: currentUser ?? 'Operador' },
-        timestamp: new Date().toISOString(),
-      });
-    }
+    setTasks(prev => prev.map(t => t.id === id ? { ...t, done: true } : t));
+    await supabase.from('routine_completions').insert({
+      task_id: task.id,
+      task_title: task.title,
+      category: task.category,
+      completed_by: currentUser ?? 'Operador',
+      completed_date: new Date().toLocaleDateString('en-CA'),
+    });
+    sendWebhook({
+      event: 'routine_task_completed',
+      task: { title: task.title, category: task.category, completed_by: currentUser ?? 'Operador' },
+      timestamp: new Date().toISOString(),
+    });
   };
 
   const openAdd = () => { setEditingTask(null); setForm(EMPTY_FORM); setShowModal(true); };
@@ -143,7 +147,7 @@ export default function RotinaView({ currentUser }: { currentUser?: string }) {
                 task.done ? 'border-gray-700 opacity-60' : 'border-gray-700 hover:border-gray-600'
               }`}
             >
-              <button onClick={() => toggle(task.id)} className="mt-0.5 flex-shrink-0">
+              <button onClick={() => toggle(task.id)} className={`mt-0.5 flex-shrink-0 ${task.done ? 'cursor-default' : 'cursor-pointer'}`}>
                 {task.done
                   ? <CheckCircle2 className="w-4 h-4 text-green-500" />
                   : <Circle className="w-4 h-4 text-gray-400 hover:text-blue-500 transition-colors" />

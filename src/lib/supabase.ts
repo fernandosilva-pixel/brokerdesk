@@ -52,6 +52,16 @@ export type RoutineTaskRow = {
   created_at: string;
 };
 
+export type RoutineCompletionRow = {
+  id: string;
+  task_id: string;
+  task_title: string;
+  category: string;
+  completed_by: string;
+  completed_date: string;
+  created_at: string;
+};
+
 export type NotificationRow = {
   id: string;
   title: string;
