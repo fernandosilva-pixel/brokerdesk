@@ -527,10 +527,7 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
                         <div className="flex flex-col gap-2 items-end">
                           <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full border ${cfg?.color}`}>{ticket.status}</span>
                           {ticket.status === 'Pendente' && (
-                            <div className="flex gap-1.5">
-                              <button onClick={() => onUpdateTicket(ticket.id, 'Em Andamento')} className="text-[11px] px-2 py-1 bg-yellow-900/40 text-yellow-400 border border-yellow-700/50 rounded-lg hover:bg-yellow-900/60 transition-colors">Iniciar</button>
-                              <button onClick={() => onUpdateTicket(ticket.id, 'Resolvido')} className="text-[11px] px-2 py-1 bg-green-900/40 text-green-400 border border-green-700/50 rounded-lg hover:bg-green-900/60 transition-colors">Resolver</button>
-                            </div>
+                            <button onClick={() => onUpdateTicket(ticket.id, 'Resolvido')} className="text-[11px] px-2 py-1 bg-green-900/40 text-green-400 border border-green-700/50 rounded-lg hover:bg-green-900/60 transition-colors">Resolver</button>
                           )}
                           {ticket.status === 'Em Andamento' && (
                             <button onClick={() => onUpdateTicket(ticket.id, 'Resolvido')} className="text-[11px] px-2 py-1 bg-green-900/40 text-green-400 border border-green-700/50 rounded-lg hover:bg-green-900/60 transition-colors">Resolver</button>
