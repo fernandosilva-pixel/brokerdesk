@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import {
   Code2, Circle, Play, CheckCircle, Filter,
-  FileText, AlertTriangle, Search,
+  FileText, AlertTriangle, Search, ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import type { Ticket } from '../../data/brokers';
 import { isOverdue, dateLabel, isCreatedToday } from '../../lib/ticketUtils';
@@ -26,14 +26,46 @@ const priorityConfig = {
   Baixa: { color: 'bg-green-500 text-white', border: 'border-l-green-400' },
 } as const;
 
+function generateDates() {
+  const dates = [];
+  const today = new Date();
+  const todayKey = today.toISOString().split('T')[0];
+  for (let i = 30; i >= 1; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    dates.push({ key: d.toISOString().split('T')[0], label: d.toLocaleDateString('pt-BR', { weekday: 'short' }), sub: d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }), isToday: false });
+  }
+  dates.push({ key: todayKey, label: 'Hoje', sub: today.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }), isToday: true });
+  for (let i = 1; i <= 30; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    dates.push({ key: d.toISOString().split('T')[0], label: d.toLocaleDateString('pt-BR', { weekday: 'short' }), sub: d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }), isToday: false });
+  }
+  return dates;
+}
+
+const TODAY_KEY = new Date().toISOString().split('T')[0];
+
 export default function DemandasTechView({ tickets, onUpdateTicket }: DemandasTechViewProps) {
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState<Ticket['status'] | 'Todos'>('Todos');
   const [filterPriority, setFilterPriority] = useState<Ticket['priority'] | 'Todos'>('Todos');
+  const [currentDate, setCurrentDate] = useState(TODAY_KEY);
+  const [dateStart, setDateStart] = useState(27);
+
+  const dates = useMemo(() => generateDates(), []);
+  const visibleDates = dates.slice(dateStart, dateStart + 7);
+
+  const dateFiltered = useMemo(() =>
+    tickets.filter(t =>
+      t.isDev &&
+      (t.status !== 'Resolvido' && t.status !== 'Fechado' ? t.date <= currentDate : t.date === currentDate)
+    ),
+    [tickets, currentDate]
+  );
 
   const devTickets = useMemo(() =>
-    tickets
-      .filter(t => t.isDev)
+    dateFiltered
       .filter(t => filterStatus === 'Todos' || t.status === filterStatus)
       .filter(t => filterPriority === 'Todos' || t.priority === filterPriority)
       .filter(t =>
@@ -42,14 +74,14 @@ export default function DemandasTechView({ tickets, onUpdateTicket }: DemandasTe
         t.broker.nome.toLowerCase().includes(search.toLowerCase()) ||
         t.description.toLowerCase().includes(search.toLowerCase())
       ),
-    [tickets, filterStatus, filterPriority, search]
+    [dateFiltered, filterStatus, filterPriority, search]
   );
 
   const kpis = [
-    { label: 'Total Tech', value: tickets.filter(t => t.isDev).length, color: 'text-purple-400', bg: 'bg-purple-500' },
-    { label: 'Pendentes', value: tickets.filter(t => t.isDev && t.status === 'Pendente').length, color: 'text-red-400', bg: 'bg-red-500' },
-    { label: 'Em Andamento', value: tickets.filter(t => t.isDev && t.status === 'Em Andamento').length, color: 'text-yellow-400', bg: 'bg-yellow-500' },
-    { label: 'Resolvidos', value: tickets.filter(t => t.isDev && t.status === 'Resolvido').length, color: 'text-green-400', bg: 'bg-green-500' },
+    { label: 'Total Tech', value: dateFiltered.length, color: 'text-purple-400', bg: 'bg-purple-500' },
+    { label: 'Pendentes', value: dateFiltered.filter(t => t.status === 'Pendente').length, color: 'text-red-400', bg: 'bg-red-500' },
+    { label: 'Em Andamento', value: dateFiltered.filter(t => t.status === 'Em Andamento').length, color: 'text-yellow-400', bg: 'bg-yellow-500' },
+    { label: 'Resolvidos', value: dateFiltered.filter(t => t.status === 'Resolvido').length, color: 'text-green-400', bg: 'bg-green-500' },
   ];
 
   return (
@@ -74,6 +106,55 @@ export default function DemandasTechView({ tickets, onUpdateTicket }: DemandasTe
             <div className={`mt-2 h-1 rounded-full opacity-30 ${bg}`} />
           </div>
         ))}
+      </div>
+
+      {/* Date Tabs */}
+      <div className="bg-gray-800 rounded-xl border border-gray-700 shadow-sm p-3">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setDateStart(Math.max(0, dateStart - 1))}
+            disabled={dateStart === 0}
+            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-300 hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <div className="flex gap-1 flex-1 overflow-hidden">
+            {visibleDates.map(date => {
+              const active = currentDate === date.key;
+              const dayNum = new Date(date.key + 'T12:00:00').getDate();
+              return (
+                <button
+                  key={date.key}
+                  onClick={() => setCurrentDate(date.key)}
+                  className="flex-1 flex flex-col items-center gap-1 py-2 px-1 transition-all"
+                >
+                  <span className={`hidden sm:block uppercase tracking-wide text-[10px] font-medium ${active ? 'text-purple-400' : date.isToday ? 'text-purple-400' : 'text-gray-500'}`}>
+                    {date.label}
+                  </span>
+                  <span className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
+                    active
+                      ? 'bg-purple-600 text-white shadow-sm'
+                      : date.isToday
+                      ? 'bg-purple-900/40 text-purple-400 ring-1 ring-purple-500/50'
+                      : 'text-gray-400 hover:bg-gray-700'
+                  }`}>
+                    {dayNum}
+                  </span>
+                  <span className={`hidden sm:block text-[10px] ${active ? 'text-purple-300' : 'text-gray-600'}`}>
+                    {new Date(date.key + 'T12:00:00').toLocaleDateString('pt-BR', { month: 'short' })}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <button
+            onClick={() => setDateStart(Math.min(dates.length - 7, dateStart + 1))}
+            disabled={dateStart + 7 >= dates.length}
+            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-300 hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -125,7 +206,7 @@ export default function DemandasTechView({ tickets, onUpdateTicket }: DemandasTe
           <p className="text-xs text-gray-600 mt-1">
             {tickets.filter(t => t.isDev).length === 0
               ? 'Crie um ticket e ative "Direcionar para Demandas Tech" no Dashboard'
-              : 'Tente ajustar os filtros'}
+              : 'Tente ajustar os filtros ou a data selecionada'}
           </p>
         </div>
       ) : (
@@ -182,15 +263,7 @@ export default function DemandasTechView({ tickets, onUpdateTicket }: DemandasTe
                       {ticket.status}
                     </span>
                     <div className="flex gap-1.5">
-                      {ticket.status === 'Pendente' && (
-                        <button
-                          onClick={() => onUpdateTicket(ticket.id, 'Resolvido')}
-                          className="text-[11px] px-2.5 py-1 bg-green-900/40 text-green-400 border border-green-700/50 rounded-lg hover:bg-green-900/60 transition-colors"
-                        >
-                          Resolver
-                        </button>
-                      )}
-                      {ticket.status === 'Em Andamento' && (
+                      {(ticket.status === 'Pendente' || ticket.status === 'Em Andamento') && (
                         <button
                           onClick={() => onUpdateTicket(ticket.id, 'Resolvido')}
                           className="text-[11px] px-2.5 py-1 bg-green-900/40 text-green-400 border border-green-700/50 rounded-lg hover:bg-green-900/60 transition-colors"
