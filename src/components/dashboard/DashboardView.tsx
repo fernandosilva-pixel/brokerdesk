@@ -47,10 +47,10 @@ const statusConfig = {
 } as const;
 
 const priorityConfig = {
-  Urgente: { color: 'bg-red-500 text-white', border: 'border-l-red-500' },
-  Alta: { color: 'bg-orange-500 text-white', border: 'border-l-orange-400' },
-  Média: { color: 'bg-yellow-500 text-white', border: 'border-l-yellow-400' },
-  Baixa: { color: 'bg-green-500 text-white', border: 'border-l-green-400' },
+  Urgente: { color: 'bg-red-500 text-white', border: 'border-l-red-500', cardBorder: 'border-red-500' },
+  Alta: { color: 'bg-orange-500 text-white', border: 'border-l-orange-400', cardBorder: 'border-orange-400' },
+  Média: { color: 'bg-yellow-500 text-white', border: 'border-l-yellow-400', cardBorder: 'border-yellow-400' },
+  Baixa: { color: 'bg-green-500 text-white', border: 'border-l-green-400', cardBorder: 'border-green-400' },
 } as const;
 
 export default function DashboardView({ searchTerm, currentUser, brokers, tickets, onAddTicket, onUpdateTicket }: DashboardViewProps) {
@@ -240,15 +240,14 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
           const urgent = activeTickets.filter(t => t.priority === 'Urgente').length;
           const devCount = bTickets.filter(t => t.isDev).length;
           const lastTicket = bTickets[0];
+          const priorityOrder = ['Urgente', 'Alta', 'Média', 'Baixa'] as const;
+          const topPriority = priorityOrder.find(p => activeTickets.some(t => t.priority === p));
+          const cardBorder = topPriority ? priorityConfig[topPriority].cardBorder : 'border-gray-700';
 
           return (
             <div
               key={broker.nome}
-              className={`bg-gray-800 rounded-xl border shadow-sm hover:shadow-lg hover:shadow-black/20 transition-all duration-200 overflow-hidden flex flex-col ${
-                urgent > 0 ? 'border-l-4 border-l-red-500 border-gray-700' :
-                pending > 0 ? 'border-l-4 border-l-yellow-400 border-gray-700' :
-                'border-gray-700'
-              }`}
+              className={`bg-gray-800 rounded-xl border-2 shadow-sm hover:shadow-lg hover:shadow-black/20 transition-all duration-200 overflow-hidden flex flex-col ${cardBorder}`}
             >
               {/* Card Header */}
               <div className="px-4 pt-4 pb-3 flex items-start justify-between">
@@ -276,16 +275,11 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
 
               {/* Ticket Badges */}
               <div className="px-4 pb-3 flex gap-1.5 flex-wrap">
-                {bTickets.length > 0 ? (
+                {activeTickets.length > 0 ? (
                   <>
                     <span className="text-[11px] font-medium px-2 py-0.5 bg-blue-900/40 text-blue-400 border border-blue-700/50 rounded-full">
-                      {bTickets.length} ticket{bTickets.length !== 1 ? 's' : ''}
+                      {activeTickets.length} aberto{activeTickets.length !== 1 ? 's' : ''}
                     </span>
-                    {pending > 0 && (
-                      <span className="text-[11px] font-medium px-2 py-0.5 bg-red-900/40 text-red-400 border border-red-700/50 rounded-full">
-                        {pending} aberto{pending !== 1 ? 's' : ''}
-                      </span>
-                    )}
                     {devCount > 0 && (
                       <span className="flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 bg-purple-900/40 text-purple-400 border border-purple-700/50 rounded-full">
                         <Code2 className="w-2.5 h-2.5" /> {devCount} tech
