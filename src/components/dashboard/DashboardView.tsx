@@ -360,7 +360,7 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
 
       {/* Create Ticket Modal */}
       {createModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[200]">
           <div className="bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-md p-6">
             <div className="flex items-center justify-between mb-5">
               <div>
@@ -471,7 +471,7 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
 
       {/* Report Modal */}
       {reportModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[200]">
           <div className="bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-2xl p-6 max-h-[85vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-5">
               <div>
