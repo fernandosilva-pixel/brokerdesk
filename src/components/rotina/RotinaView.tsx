@@ -28,7 +28,7 @@ function saveDoneState(state: Record<string, boolean>) {
 
 const EMPTY_FORM = { title: '', description: '', category: 'manha' as Task['category'], time: '', recorrente: true };
 
-export default function RotinaView({ currentUser }: { currentUser?: string }) {
+export default function RotinaView({ currentUser, isAdmin }: { currentUser?: string; isAdmin?: boolean }) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [doneState, setDoneState] = useState<Record<string, boolean>>(loadDoneState);
@@ -173,14 +173,16 @@ export default function RotinaView({ currentUser }: { currentUser?: string }) {
                   )}
                 </div>
               </div>
-              <div className="flex items-center gap-1 flex-shrink-0">
-                <button onClick={() => openEdit(task)} className="p-1 text-gray-500 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors">
-                  <Pencil className="w-3.5 h-3.5" />
-                </button>
-                <button onClick={() => remove(task.id)} className="p-1 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
+              {isAdmin && (
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <button onClick={() => openEdit(task)} className="p-1 text-gray-500 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors">
+                    <Pencil className="w-3.5 h-3.5" />
+                  </button>
+                  <button onClick={() => remove(task.id)} className="p-1 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
             </div>
           ))
         )}
@@ -199,14 +201,16 @@ export default function RotinaView({ currentUser }: { currentUser?: string }) {
               {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button onClick={resetDay} className="flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-gray-300 px-3 py-1.5 bg-gray-900 hover:bg-gray-700 border border-gray-700 rounded-lg transition-colors">
-              <RefreshCw className="w-3 h-3" />Resetar
-            </button>
-            <button onClick={openAdd} className="flex items-center gap-1.5 text-xs font-medium text-white px-3 py-1.5 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
-              <Plus className="w-3 h-3" />Nova Tarefa
-            </button>
-          </div>
+          {isAdmin && (
+            <div className="flex items-center gap-2">
+              <button onClick={resetDay} className="flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-gray-300 px-3 py-1.5 bg-gray-900 hover:bg-gray-700 border border-gray-700 rounded-lg transition-colors">
+                <RefreshCw className="w-3 h-3" />Resetar
+              </button>
+              <button onClick={openAdd} className="flex items-center gap-1.5 text-xs font-medium text-white px-3 py-1.5 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+                <Plus className="w-3 h-3" />Nova Tarefa
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="space-y-1.5">

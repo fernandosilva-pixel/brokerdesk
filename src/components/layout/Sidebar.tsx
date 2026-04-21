@@ -22,7 +22,7 @@ const navItems: { id: View; label: string; Icon: React.ElementType; adminOnly?: 
   { id: 'dashboard', label: 'Dashboard',       Icon: LayoutDashboard },
   { id: 'demandas',  label: 'Demandas Tech',    Icon: Code2 },
   { id: 'rotina',    label: 'Rotina Diária',    Icon: CheckSquare },
-  { id: 'whatsapp',  label: 'Alertas WhatsApp', Icon: MessageCircle },
+  { id: 'whatsapp',  label: 'Alertas WhatsApp', Icon: MessageCircle, adminOnly: true },
   { id: 'admin',     label: 'Admin',            Icon: ShieldCheck, adminOnly: true },
 ];
 

@@ -185,7 +185,7 @@ function AppInner() {
       case 'demandas':
         return <DemandasTechView tickets={tickets} onUpdateTicket={onUpdateTicket} />;
       case 'rotina':
-        return <RotinaView currentUser={profile?.email ?? user.email ?? ''} />;
+        return <RotinaView currentUser={profile?.email ?? user.email ?? ''} isAdmin={isAdmin} />;
       case 'whatsapp':
         return <WhatsAppView />;
       case 'admin':
