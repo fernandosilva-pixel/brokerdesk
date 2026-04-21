@@ -121,11 +121,7 @@ export default function AdminView() {
     if (clearStep === 0) { setClearStep(1); return; }
     if (clearStep === 1) { setClearStep(2); return; }
     setClearing(true);
-    const { data } = await supabase.from('tickets').select('id');
-    if (data && data.length > 0) {
-      const ids = data.map((t: { id: string }) => t.id);
-      await supabase.from('tickets').delete().in('id', ids);
-    }
+    await supabase.rpc('delete_all_tickets');
     setClearing(false);
     setClearStep(0);
   };
