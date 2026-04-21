@@ -236,7 +236,6 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
         {filtered.map(broker => {
           const bTickets = brokerTickets(broker.nome);
           const activeTickets = bTickets.filter(t => t.status !== 'Resolvido' && t.status !== 'Fechado');
-          const pending = activeTickets.filter(t => t.status === 'Pendente').length;
           const urgent = activeTickets.filter(t => t.priority === 'Urgente').length;
           const devCount = bTickets.filter(t => t.isDev).length;
           const lastTicket = bTickets[0];
