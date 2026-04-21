@@ -1,11 +1,13 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   ExternalLink, Plus, BarChart3, X,
   Circle, Play, CheckCircle, AlertTriangle,
-  FileText, Clock, ChevronLeft, ChevronRight, Code2,
+  FileText, Clock, ChevronLeft, ChevronRight, Code2, UserCheck,
 } from 'lucide-react';
 import type { Broker, Ticket } from '../../data/brokers';
 import { isOverdue, dateLabel, isCreatedToday } from '../../lib/ticketUtils';
+import { supabase } from '../../lib/supabase';
+import type { Profile } from '../../lib/supabase';
 
 interface DashboardViewProps {
   searchTerm: string;
@@ -65,6 +67,13 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
     assignedTo: '',
     isDev: false,
   });
+  const [operators, setOperators] = useState<Profile[]>([]);
+
+  useEffect(() => {
+    supabase.from('profiles').select('*').then(({ data }) => {
+      if (data) setOperators(data as Profile[]);
+    });
+  }, []);
 
   const dates = useMemo(() => generateDates(), []);
   const visibleDates = dates.slice(dateStart, dateStart + 7);
@@ -186,6 +195,48 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
           </button>
         </div>
       </div>
+
+      {/* Atribuídos a mim */}
+      {(() => {
+        const mine = tickets.filter(t =>
+          t.assignedTo === currentUser &&
+          t.status !== 'Resolvido' &&
+          t.status !== 'Fechado'
+        );
+        if (mine.length === 0) return null;
+        return (
+          <div className="bg-gray-800 rounded-xl border border-blue-700/40 shadow-sm p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <UserCheck className="w-4 h-4 text-blue-400" />
+              <p className="text-[11px] font-semibold text-blue-400 uppercase tracking-wider">Atribuídos a mim</p>
+              <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-900/40 text-blue-400 border border-blue-700/50">{mine.length}</span>
+            </div>
+            <div className="space-y-2">
+              {mine.map(t => {
+                const cfg = statusConfig[t.status] ?? statusConfig['Pendente'];
+                const pcfg = priorityConfig[t.priority] ?? priorityConfig['Baixa'];
+                return (
+                  <div key={t.id} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border bg-gray-700/40 border-gray-600/60`}>
+                    <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${cfg.dot}`} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-100 truncate">{t.title}</p>
+                      <p className="text-xs text-gray-400">{t.broker.nome}</p>
+                    </div>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${pcfg.color}`}>{t.priority}</span>
+                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full border ${cfg.color}`}>{t.status}</span>
+                    <button
+                      onClick={() => onUpdateTicket(t.id, 'Resolvido')}
+                      className="text-[11px] font-medium px-2.5 py-1 rounded-lg bg-green-900/30 border border-green-700/50 text-green-400 hover:bg-green-900/50 transition-colors flex-shrink-0"
+                    >
+                      Resolver
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Featured Brokers */}
       {(() => {
@@ -416,8 +467,11 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
                     className="w-full px-3 py-2.5 text-sm bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                   >
                     <option value="">Ninguém</option>
-                    <option>suporte@mybroker.com</option>
-                    <option>gerente@mybroker.com</option>
+                    {operators.map(op => (
+                      <option key={op.id} value={op.email}>
+                        {op.name ?? op.email}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
