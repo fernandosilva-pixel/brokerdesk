@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import {
   ExternalLink, Plus, BarChart3, X,
-  Circle, Play, CheckCircle, AlertTriangle,
+  AlertTriangle,
   FileText, Clock, ChevronLeft, ChevronRight, Code2,
 } from 'lucide-react';
 import type { Broker, Ticket } from '../../data/brokers';
@@ -20,42 +20,61 @@ function generateDates() {
   const dates = [];
   const today = new Date();
   const todayKey = today.toISOString().split('T')[0];
-  // 30 days in the past
   for (let i = 30; i >= 1; i--) {
     const d = new Date(today);
     d.setDate(today.getDate() - i);
-    dates.push({ key: d.toISOString().split('T')[0], label: d.toLocaleDateString('pt-BR', { weekday: 'short' }), sub: d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }), isToday: false });
+    dates.push({ key: d.toISOString().split('T')[0], label: d.toLocaleDateString('pt-BR', { weekday: 'short' }), isToday: false });
   }
-  // today
-  dates.push({ key: todayKey, label: 'Hoje', sub: today.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }), isToday: true });
-  // 30 days ahead
+  dates.push({ key: todayKey, label: 'Hoje', isToday: true });
   for (let i = 1; i <= 30; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
-    dates.push({ key: d.toISOString().split('T')[0], label: d.toLocaleDateString('pt-BR', { weekday: 'short' }), sub: d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }), isToday: false });
+    dates.push({ key: d.toISOString().split('T')[0], label: d.toLocaleDateString('pt-BR', { weekday: 'short' }), isToday: false });
   }
   return dates;
 }
 const TODAY_KEY = new Date().toISOString().split('T')[0];
 
-const statusConfig = {
-  Pendente: { color: 'bg-red-900/40 text-red-400 border-red-700', dot: 'bg-red-500', Icon: Circle },
-  'Em Andamento': { color: 'bg-yellow-900/40 text-yellow-400 border-yellow-700', dot: 'bg-yellow-500', Icon: Play },
-  Resolvido: { color: 'bg-green-900/40 text-green-400 border-green-700', dot: 'bg-green-500', Icon: CheckCircle },
-  Fechado: { color: 'bg-gray-700 text-gray-400 border-gray-600', dot: 'bg-gray-400', Icon: CheckCircle },
-  Aberto: { color: 'bg-red-900/40 text-red-400 border-red-700', dot: 'bg-red-500', Icon: Circle },
-} as const;
+const statusDot: Record<string, string> = {
+  Pendente: 'var(--red)',
+  'Em Andamento': 'var(--yellow)',
+  Resolvido: 'var(--green)',
+  Fechado: 'var(--text3)',
+  Aberto: 'var(--red)',
+};
 
-const priorityConfig = {
-  Urgente: { color: 'bg-red-500 text-white', border: 'border-l-red-500', cardBorder: 'border-red-500' },
-  Alta: { color: 'bg-orange-500 text-white', border: 'border-l-orange-400', cardBorder: 'border-orange-400' },
-  Média: { color: 'bg-yellow-500 text-white', border: 'border-l-yellow-400', cardBorder: 'border-yellow-400' },
-  Baixa: { color: 'bg-green-500 text-white', border: 'border-l-green-400', cardBorder: 'border-green-400' },
-} as const;
+const statusBadgeStyle: Record<string, React.CSSProperties> = {
+  Pendente:     { background: 'var(--red-bg)',    border: '1px solid var(--red-border)',    color: 'var(--red)' },
+  'Em Andamento':{ background: 'var(--yellow-bg)', border: '1px solid var(--yellow-border)', color: 'var(--yellow)' },
+  Resolvido:    { background: 'var(--green-bg)',  border: '1px solid var(--green-border)',  color: 'var(--green)' },
+  Fechado:      { background: 'var(--bg3)',       border: '1px solid var(--border)',        color: 'var(--text3)' },
+  Aberto:       { background: 'var(--red-bg)',    border: '1px solid var(--red-border)',    color: 'var(--red)' },
+};
+
+const priorityBadgeStyle: Record<string, React.CSSProperties> = {
+  Urgente: { background: 'var(--red)',    color: '#fff' },
+  Alta:    { background: 'var(--orange)', color: '#fff' },
+  Média:   { background: 'var(--yellow)', color: '#fff' },
+  Baixa:   { background: 'var(--green)',  color: '#fff' },
+};
+
+const priorityCardBorder: Record<string, string> = {
+  Urgente: 'var(--red)',
+  Alta:    'var(--orange)',
+  Média:   'var(--yellow)',
+  Baixa:   'var(--green)',
+};
+
+const priorityReportBorder: Record<string, string> = {
+  Urgente: 'var(--red)',
+  Alta:    'var(--orange)',
+  Média:   'var(--yellow)',
+  Baixa:   'var(--green)',
+};
 
 export default function DashboardView({ searchTerm, currentUser, brokers, tickets, onAddTicket, onUpdateTicket }: DashboardViewProps) {
   const [currentDate, setCurrentDate] = useState(TODAY_KEY);
-  const [dateStart, setDateStart] = useState(27); // starts so today is visible (index 30, show 30-36)
+  const [dateStart, setDateStart] = useState(27);
   const [createModal, setCreateModal] = useState<Broker | null>(null);
   const [reportModal, setReportModal] = useState<Broker | null>(null);
   const [newTicket, setNewTicket] = useState({
@@ -71,34 +90,27 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
 
   const filtered = useMemo(() => {
     const brokerPriority = (nome: string) => {
-      const active = tickets.filter(t =>
-        t.broker.nome === nome && t.status !== 'Resolvido' && t.status !== 'Fechado'
-      );
+      const active = tickets.filter(t => t.broker.nome === nome && t.status !== 'Resolvido' && t.status !== 'Fechado');
       if (active.some(t => t.priority === 'Urgente')) return 0;
       if (active.some(t => t.status === 'Pendente')) return 1;
-      if (active.length > 0) return 2; // Em Andamento only
-      return 3; // clean
+      if (active.length > 0) return 2;
+      return 3;
     };
-
     return brokers
-      .filter(b =>
-        b.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        b.responsavel.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+      .filter(b => b.nome.toLowerCase().includes(searchTerm.toLowerCase()) || b.responsavel.toLowerCase().includes(searchTerm.toLowerCase()))
       .sort((a, b) => brokerPriority(a.nome) - brokerPriority(b.nome));
   }, [searchTerm, brokers, tickets]);
 
-  // Unresolved tickets appear on every date; resolved/closed only on their own date
   const brokerTickets = (brokerNome: string) => tickets.filter(t =>
     t.broker.nome === brokerNome &&
     (t.status !== 'Resolvido' && t.status !== 'Fechado' ? t.date <= currentDate : t.date === currentDate)
   );
 
   const kpis = [
-    { label: 'Total Brokers', value: brokers.length, color: 'text-blue-400', bg: 'bg-blue-500' },
-    { label: 'Tickets Pendentes', value: tickets.filter(t => t.status === 'Pendente').length, color: 'text-red-400', bg: 'bg-red-500' },
-    { label: 'Em Andamento', value: tickets.filter(t => t.status === 'Em Andamento').length, color: 'text-yellow-400', bg: 'bg-yellow-500' },
-    { label: 'Resolvidos Hoje', value: tickets.filter(t => t.status === 'Resolvido' && t.updatedAt?.startsWith(TODAY_KEY)).length, color: 'text-green-400', bg: 'bg-green-500' },
+    { label: 'Total Brokers',     value: brokers.length,                                                                           color: 'var(--blue)',   glow: 'var(--blue-bg)' },
+    { label: 'Tickets Pendentes', value: tickets.filter(t => t.status === 'Pendente').length,                                      color: 'var(--red)',    glow: 'var(--red-bg)' },
+    { label: 'Em Andamento',      value: tickets.filter(t => t.status === 'Em Andamento').length,                                  color: 'var(--yellow)', glow: 'var(--yellow-bg)' },
+    { label: 'Resolvidos Hoje',   value: tickets.filter(t => t.status === 'Resolvido' && t.updatedAt?.startsWith(TODAY_KEY)).length, color: 'var(--green)', glow: 'var(--green-bg)' },
   ];
 
   const handleCreateTicket = () => {
@@ -123,29 +135,31 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
+
       {/* KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {kpis.map(({ label, value, color, bg }) => (
-          <div key={label} className="bg-gray-800 rounded-xl border border-gray-700 p-4 shadow-sm">
-            <p className="text-xs font-medium text-gray-400 mb-1">{label}</p>
-            <p className={`text-3xl font-bold ${color}`}>{value}</p>
-            <div className={`mt-2 h-1 rounded-full opacity-30 ${bg}`} />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {kpis.map(({ label, value, color, glow }) => (
+          <div key={label} className="kpi-card">
+            <p className="section-label mb-2">{label}</p>
+            <p className="num text-3xl font-bold" style={{ color }}>{value}</p>
+            <div className="mt-2.5 h-0.5 rounded-full" style={{ background: glow, border: `1px solid ${color}22` }} />
           </div>
         ))}
       </div>
 
       {/* Date Tabs */}
-      <div className="bg-gray-800 rounded-xl border border-gray-700 shadow-sm p-3">
-        <div className="flex items-center gap-2">
+      <div className="card !p-2.5">
+        <div className="flex items-center gap-1.5">
           <button
             onClick={() => setDateStart(Math.max(0, dateStart - 1))}
             disabled={dateStart === 0}
-            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-300 hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            style={{ color: 'var(--text3)' }}
+            className="p-1.5 rounded-md hover:bg-white/[0.05] disabled:opacity-25 disabled:cursor-not-allowed transition-colors flex-shrink-0"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
-          <div className="flex gap-1 flex-1 overflow-hidden">
+          <div className="flex gap-0.5 flex-1 overflow-hidden">
             {visibleDates.map(date => {
               const active = currentDate === date.key;
               const dayNum = new Date(date.key + 'T12:00:00').getDate();
@@ -153,24 +167,25 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
                 <button
                   key={date.key}
                   onClick={() => setCurrentDate(date.key)}
-                  className="flex-1 flex flex-col items-center gap-1 py-2 px-1 transition-all"
+                  className="flex-1 flex flex-col items-center gap-0.5 py-1.5 px-1 rounded-lg transition-all"
                 >
-                  {/* Day label — hidden on mobile */}
-                  <span className={`hidden sm:block uppercase tracking-wide text-[10px] font-medium ${active ? 'text-blue-400' : date.isToday ? 'text-blue-400' : 'text-gray-500'}`}>
+                  <span className="hidden sm:block uppercase tracking-wider text-[9px] font-semibold"
+                    style={{ color: active ? 'var(--blue)' : date.isToday ? 'var(--blue)' : 'var(--text3)' }}>
                     {date.label}
                   </span>
-                  {/* Circle with day number */}
-                  <span className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
-                    active
-                      ? 'bg-blue-600 text-white shadow-sm'
+                  <span
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all num"
+                    style={active
+                      ? { background: 'var(--blue)', color: '#fff' }
                       : date.isToday
-                      ? 'bg-blue-900/40 text-blue-400 ring-1 ring-blue-500/50'
-                      : 'text-gray-400 hover:bg-gray-700'
-                  }`}>
+                      ? { background: 'var(--blue-bg)', color: 'var(--blue)', outline: '1px solid var(--blue-border)' }
+                      : { color: 'var(--text2)' }
+                    }
+                  >
                     {dayNum}
                   </span>
-                  {/* Month — hidden on mobile */}
-                  <span className={`hidden sm:block text-[10px] ${active ? 'text-blue-300' : 'text-gray-600'}`}>
+                  <span className="hidden sm:block text-[9px]"
+                    style={{ color: active ? 'var(--blue)' : 'var(--text3)' }}>
                     {new Date(date.key + 'T12:00:00').toLocaleDateString('pt-BR', { month: 'short' })}
                   </span>
                 </button>
@@ -180,7 +195,8 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
           <button
             onClick={() => setDateStart(Math.min(dates.length - 7, dateStart + 1))}
             disabled={dateStart + 7 >= dates.length}
-            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-300 hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            style={{ color: 'var(--text3)' }}
+            className="p-1.5 rounded-md hover:bg-white/[0.05] disabled:opacity-25 disabled:cursor-not-allowed transition-colors flex-shrink-0"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -193,33 +209,36 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
         const featuredBrokers = FEATURED.map(nome => brokers.find(b => b.nome === nome)).filter(Boolean) as Broker[];
         if (featuredBrokers.length === 0) return null;
         return (
-          <div className="bg-gray-800 rounded-xl border border-gray-700 shadow-sm p-4">
-            <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-3">Mais frequentes</p>
-            <div className="flex flex-wrap gap-2">
+          <div className="card !p-4">
+            <p className="section-label mb-3">Mais frequentes</p>
+            <div className="flex flex-wrap gap-1.5">
               {featuredBrokers.map(broker => {
                 const bt = brokerTickets(broker.nome);
                 const active = bt.filter(t => t.status !== 'Resolvido' && t.status !== 'Fechado');
                 const hasUrgent = active.some(t => t.priority === 'Urgente');
                 const hasPending = active.some(t => t.status === 'Pendente');
                 const isClean = active.length === 0;
+                const dotColor = hasUrgent ? 'var(--red)' : hasPending ? 'var(--yellow)' : isClean ? 'var(--green)' : 'var(--blue)';
+                const btnStyle: React.CSSProperties = hasUrgent
+                  ? { background: 'var(--red-bg)', border: '1px solid var(--red-border)', color: 'var(--red)' }
+                  : hasPending
+                  ? { background: 'var(--yellow-bg)', border: '1px solid var(--yellow-border)', color: 'var(--yellow)' }
+                  : isClean
+                  ? { background: 'var(--green-bg)', border: '1px solid var(--green-border)', color: 'var(--green)' }
+                  : { background: 'var(--bg3)', border: '1px solid var(--border)', color: 'var(--text2)' };
+
                 return (
                   <button
                     key={broker.nome}
                     onClick={() => setCreateModal(broker)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs font-medium transition-all ${
-                      hasUrgent
-                        ? 'border-red-700/60 bg-red-900/20 text-red-300 hover:bg-red-900/30'
-                        : hasPending
-                        ? 'border-yellow-700/60 bg-yellow-900/20 text-yellow-300 hover:bg-yellow-900/30'
-                        : isClean
-                        ? 'border-green-700/40 bg-green-900/10 text-green-400 hover:bg-green-900/20'
-                        : 'border-gray-700 bg-gray-700/40 text-gray-300 hover:bg-gray-700'
-                    }`}
+                    style={btnStyle}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[12px] font-medium transition-all hover:opacity-80 cursor-pointer"
                   >
-                    <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${hasUrgent ? 'bg-red-400' : hasPending ? 'bg-yellow-400' : isClean ? 'bg-green-400' : 'bg-blue-400'}`} />
+                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: dotColor }} />
                     {broker.nome}
                     {active.length > 0 && (
-                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${hasUrgent ? 'bg-red-900/40 text-red-400' : 'bg-yellow-900/40 text-yellow-400'}`}>
+                      <span className="num text-[10px] font-bold px-1.5 py-0.5 rounded-md"
+                        style={{ background: 'rgba(0,0,0,0.25)', color: 'inherit' }}>
                         {active.length}
                       </span>
                     )}
@@ -232,7 +251,7 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
       })()}
 
       {/* Broker Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
         {filtered.map(broker => {
           const bTickets = brokerTickets(broker.nome);
           const activeTickets = bTickets.filter(t => t.status !== 'Resolvido' && t.status !== 'Fechado');
@@ -241,91 +260,100 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
           const lastTicket = bTickets[0];
           const priorityOrder = ['Urgente', 'Alta', 'Média', 'Baixa'] as const;
           const topPriority = priorityOrder.find(p => activeTickets.some(t => t.priority === p));
-          const cardBorder = topPriority ? priorityConfig[topPriority].cardBorder : 'border-gray-700';
+          const borderColor = topPriority ? priorityCardBorder[topPriority] : 'var(--border)';
 
           return (
             <div
               key={broker.nome}
-              className={`bg-gray-800 rounded-xl border-2 shadow-sm hover:shadow-lg hover:shadow-black/20 transition-all duration-200 overflow-hidden flex flex-col ${cardBorder}`}
+              style={{ background: 'var(--bg2)', border: `1.5px solid ${borderColor}`, borderRadius: '12px' }}
+              className="flex flex-col hover:shadow-lg transition-all duration-200 overflow-hidden"
             >
               {/* Card Header */}
-              <div className="px-4 pt-4 pb-3 flex items-start justify-between">
+              <div className="px-4 pt-4 pb-3 flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-semibold text-white truncate">{broker.nome}</h3>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-[13px] font-semibold truncate" style={{ color: 'var(--text1)' }}>{broker.nome}</h3>
                     {urgent > 0 && (
-                      <span className="flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 bg-red-900/50 text-red-400 rounded-full border border-red-700">
+                      <span className="badge badge-red flex items-center gap-1">
                         <AlertTriangle className="w-2.5 h-2.5" /> Urgente
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-gray-500 mt-0.5">{broker.responsavel}</p>
+                  <p className="text-[11px] mt-0.5 truncate" style={{ color: 'var(--text3)' }}>{broker.responsavel}</p>
                 </div>
-                <div className="flex items-center gap-1.5 ml-2">
-                  <button
-                    onClick={() => setCreateModal(broker)}
-                    className="flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-                  >
-                    <Plus className="w-3 h-3" />
-                    Ticket
-                  </button>
-                </div>
+                <button
+                  onClick={() => setCreateModal(broker)}
+                  className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-colors flex-shrink-0 cursor-pointer"
+                  style={{ background: 'var(--blue-bg)', border: '1px solid var(--blue-border)', color: 'var(--blue)' }}
+                >
+                  <Plus className="w-3 h-3" /> Ticket
+                </button>
               </div>
 
-              {/* Ticket Badges */}
+              {/* Active badge */}
               <div className="px-4 pb-3 flex gap-1.5 flex-wrap">
                 {activeTickets.length > 0 ? (
                   <>
-                    <span className="text-[11px] font-medium px-2 py-0.5 bg-blue-900/40 text-blue-400 border border-blue-700/50 rounded-full">
-                      {activeTickets.length} aberto{activeTickets.length !== 1 ? 's' : ''}
+                    <span className="badge badge-blue">
+                      <span className="num">{activeTickets.length}</span> aberto{activeTickets.length !== 1 ? 's' : ''}
                     </span>
                     {devCount > 0 && (
-                      <span className="flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 bg-purple-900/40 text-purple-400 border border-purple-700/50 rounded-full">
-                        <Code2 className="w-2.5 h-2.5" /> {devCount} tech
+                      <span className="badge badge-purple">
+                        <Code2 className="w-2.5 h-2.5" />
+                        <span className="num">{devCount}</span> tech
                       </span>
                     )}
                   </>
                 ) : (
-                  <span className="text-[11px] font-medium px-2 py-0.5 bg-gray-700 text-gray-500 border border-gray-600 rounded-full">
-                    Sem tickets
-                  </span>
+                  <span className="badge badge-gray">Sem tickets</span>
                 )}
               </div>
 
               {/* Status Grid */}
-              <div className="px-4 pb-3 border-t border-gray-700/50 pt-3">
-                <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-2">Status dos Tickets</p>
-                <div className="grid grid-cols-2 gap-y-1 text-xs text-gray-400">
+              <div className="px-4 pb-3 pt-3" style={{ borderTop: '1px solid var(--border)' }}>
+                <p className="section-label mb-2">Status</p>
+                <div className="grid grid-cols-2 gap-y-1.5">
                   {[
-                    { label: 'Pendentes', status: 'Pendente', dot: 'bg-red-400' },
-                    { label: 'Andamento', status: 'Em Andamento', dot: 'bg-yellow-400' },
-                    { label: 'Resolvidos', status: 'Resolvido', dot: 'bg-green-400' },
-                    { label: 'Fechados', status: 'Fechado', dot: 'bg-gray-500' },
-                  ].map(({ label, status, dot }) => (
-                    <div key={status} className="flex items-center gap-1.5">
-                      <div className={`w-1.5 h-1.5 rounded-full ${dot}`} />
-                      <span>{label}: <span className="font-semibold text-gray-300">{bTickets.filter(t => t.status === status).length}</span></span>
-                    </div>
-                  ))}
+                    { label: 'Pendentes',  status: 'Pendente',     dotColor: 'var(--red)' },
+                    { label: 'Andamento',  status: 'Em Andamento', dotColor: 'var(--yellow)' },
+                    { label: 'Resolvidos', status: 'Resolvido',    dotColor: 'var(--green)' },
+                    { label: 'Fechados',   status: 'Fechado',      dotColor: 'var(--text3)' },
+                  ].map(({ label, status, dotColor }) => {
+                    const count = bTickets.filter(t => t.status === status).length;
+                    return (
+                      <div key={status} className="flex items-center gap-1.5">
+                        <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: dotColor }} />
+                        <span className="text-[11px]" style={{ color: 'var(--text2)' }}>
+                          {label}:{' '}
+                          <span className="num font-semibold" style={{ color: count > 0 ? dotColor : 'var(--text2)' }}>
+                            {count}
+                          </span>
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
               {/* Last Ticket */}
               {lastTicket && (
-                <div className="px-4 pb-3 border-t border-gray-700/50 pt-3">
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <Clock className="w-3 h-3 text-gray-500" />
-                    <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Último Ticket</p>
+                <div className="px-4 pb-3 pt-3" style={{ borderTop: '1px solid var(--border)' }}>
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <Clock className="w-3 h-3" style={{ color: 'var(--text3)' }} />
+                    <p className="section-label">Último Ticket</p>
                     {lastTicket.isDev && (
-                      <span className="ml-auto flex items-center gap-0.5 text-[10px] text-purple-400">
+                      <span className="badge badge-purple ml-auto">
                         <Code2 className="w-2.5 h-2.5" /> Tech
                       </span>
                     )}
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${statusConfig[lastTicket.status]?.dot || 'bg-gray-400'}`} />
-                    <p className="text-xs text-gray-300 truncate flex-1">{lastTicket.title}</p>
-                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${priorityConfig[lastTicket.priority]?.color}`}>
+                    <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: statusDot[lastTicket.status] || 'var(--text3)' }} />
+                    <p className="text-[12px] truncate flex-1" style={{ color: 'var(--text1)' }}>{lastTicket.title}</p>
+                    <span
+                      className="text-[9px] font-bold px-1.5 py-0.5 rounded-md flex-shrink-0"
+                      style={priorityBadgeStyle[lastTicket.priority]}
+                    >
                       {lastTicket.priority}
                     </span>
                   </div>
@@ -333,23 +361,23 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
               )}
 
               {/* Footer */}
-              <div className="mt-auto px-4 pb-3 pt-2 border-t border-gray-700/50 flex gap-2">
+              <div className="mt-auto px-4 pb-3 pt-2.5 flex gap-1.5" style={{ borderTop: '1px solid var(--border)' }}>
                 <button
                   onClick={() => setReportModal(broker)}
-                  className="flex-1 flex items-center justify-center gap-1.5 text-xs font-medium text-gray-500 hover:text-blue-400 hover:bg-gray-700 py-1.5 rounded-lg transition-colors"
+                  className="flex-1 flex items-center justify-center gap-1.5 text-[11px] font-medium py-1.5 rounded-lg transition-all cursor-pointer hover:bg-white/[0.05]"
+                  style={{ color: 'var(--text2)' }}
                 >
-                  <BarChart3 className="w-3.5 h-3.5" />
-                  Ver Relatório
+                  <BarChart3 className="w-3.5 h-3.5" /> Relatório
                 </button>
                 {broker.dominio && (
                   <a
                     href={broker.dominio.startsWith('http') ? broker.dominio : `https://${broker.dominio}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 flex items-center justify-center gap-1.5 text-xs font-medium text-gray-500 hover:text-green-400 hover:bg-gray-700 py-1.5 rounded-lg transition-colors"
+                    className="flex-1 flex items-center justify-center gap-1.5 text-[11px] font-medium py-1.5 rounded-lg transition-all hover:bg-white/[0.05]"
+                    style={{ color: 'var(--text2)' }}
                   >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    Ir para Admin
+                    <ExternalLink className="w-3.5 h-3.5" /> Ir para Admin
                   </a>
                 )}
               </div>
@@ -360,61 +388,51 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
 
       {/* Create Ticket Modal */}
       {createModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
-          <div className="bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-md p-6">
+        <div className="fixed inset-0 flex items-center justify-center p-4 z-50" style={{ background: 'rgba(0,0,0,0.7)' }}>
+          <div className="rounded-2xl shadow-2xl w-full max-w-md p-6" style={{ background: 'var(--bg2)', border: '1px solid var(--border2)' }}>
             <div className="flex items-center justify-between mb-5">
               <div>
-                <h2 className="text-base font-semibold text-white">Novo Ticket</h2>
-                <p className="text-xs text-gray-400 mt-0.5">{createModal.nome}</p>
+                <h2 className="text-[15px] font-semibold" style={{ color: 'var(--text1)' }}>Novo Ticket</h2>
+                <p className="text-[11px] mt-0.5" style={{ color: 'var(--text3)' }}>{createModal.nome}</p>
               </div>
-              <button onClick={() => setCreateModal(null)} className="p-1.5 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-colors">
+              <button onClick={() => setCreateModal(null)} className="p-1.5 rounded-lg transition-colors hover:bg-white/[0.06] cursor-pointer" style={{ color: 'var(--text2)' }}>
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-gray-300 mb-1.5">Título *</label>
+                <label className="form-label">Título *</label>
                 <input
                   type="text"
                   value={newTicket.title}
                   onChange={e => setNewTicket(p => ({ ...p, title: e.target.value }))}
-                  className="w-full px-3 py-2.5 text-sm bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-500"
+                  className="form-control"
                   placeholder="Descreva o problema"
                   autoFocus
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-300 mb-1.5">Descrição</label>
+                <label className="form-label">Descrição</label>
                 <textarea
                   value={newTicket.description}
                   onChange={e => setNewTicket(p => ({ ...p, description: e.target.value }))}
-                  className="w-full px-3 py-2.5 text-sm bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none text-white placeholder-gray-500"
+                  className="form-control"
+                  style={{ resize: 'none' }}
                   rows={3}
                   placeholder="Detalhes adicionais..."
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-300 mb-1.5">Prioridade</label>
-                  <select
-                    value={newTicket.priority}
-                    onChange={e => setNewTicket(p => ({ ...p, priority: e.target.value as Ticket['priority'] }))}
-                    className="w-full px-3 py-2.5 text-sm bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-                  >
-                    <option>Baixa</option>
-                    <option>Média</option>
-                    <option>Alta</option>
-                    <option>Urgente</option>
+                  <label className="form-label">Prioridade</label>
+                  <select value={newTicket.priority} onChange={e => setNewTicket(p => ({ ...p, priority: e.target.value as Ticket['priority'] }))} className="form-control">
+                    <option>Baixa</option><option>Média</option><option>Alta</option><option>Urgente</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-300 mb-1.5">Atribuir a</label>
-                  <select
-                    value={newTicket.assignedTo}
-                    onChange={e => setNewTicket(p => ({ ...p, assignedTo: e.target.value }))}
-                    className="w-full px-3 py-2.5 text-sm bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-                  >
+                  <label className="form-label">Atribuir a</label>
+                  <select value={newTicket.assignedTo} onChange={e => setNewTicket(p => ({ ...p, assignedTo: e.target.value }))} className="form-control">
                     <option value="">Ninguém</option>
                     <option>suporte@mybroker.com</option>
                     <option>gerente@mybroker.com</option>
@@ -422,45 +440,40 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
                 </div>
               </div>
 
-              {/* Toggle Demandas Tech */}
               <button
                 type="button"
                 onClick={() => setNewTicket(p => ({ ...p, isDev: !p.isDev }))}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all duration-150 ${
-                  newTicket.isDev
-                    ? 'border-purple-500 bg-purple-900/30'
-                    : 'border-gray-600 bg-gray-700/50 hover:border-gray-500'
-                }`}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer"
+                style={newTicket.isDev
+                  ? { border: '1.5px solid var(--purple)', background: 'var(--purple-bg)' }
+                  : { border: '1.5px solid var(--border2)', background: 'var(--bg3)' }
+                }
               >
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${newTicket.isDev ? 'bg-purple-600' : 'bg-gray-600'}`}>
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: newTicket.isDev ? 'var(--purple)' : 'var(--bg4)' }}>
                   <Code2 className="w-4 h-4 text-white" />
                 </div>
                 <div className="flex-1 text-left">
-                  <p className={`text-sm font-semibold ${newTicket.isDev ? 'text-purple-300' : 'text-gray-300'}`}>
+                  <p className="text-[13px] font-semibold" style={{ color: newTicket.isDev ? 'var(--purple)' : 'var(--text1)' }}>
                     Direcionar para Demandas Tech
                   </p>
-                  <p className={`text-xs mt-0.5 ${newTicket.isDev ? 'text-purple-400' : 'text-gray-500'}`}>
-                    {newTicket.isDev
-                      ? 'Ticket vinculado ao broker e visível em Demandas Tech'
-                      : 'Ativar para enviar à sessão de DEV'}
+                  <p className="text-[11px] mt-0.5" style={{ color: newTicket.isDev ? 'var(--purple)' : 'var(--text3)' }}>
+                    {newTicket.isDev ? 'Ticket visível em Demandas Tech' : 'Ativar para enviar à sessão de DEV'}
                   </p>
                 </div>
-                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${newTicket.isDev ? 'border-purple-500 bg-purple-500' : 'border-gray-500'}`}>
+                <div className="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0"
+                  style={{ borderColor: newTicket.isDev ? 'var(--purple)' : 'var(--border3)', background: newTicket.isDev ? 'var(--purple)' : 'transparent' }}>
                   {newTicket.isDev && <div className="w-2 h-2 rounded-full bg-white" />}
                 </div>
               </button>
             </div>
 
-            <div className="flex gap-3 mt-6">
-              <button onClick={() => setCreateModal(null)} className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-400 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">
-                Cancelar
-              </button>
+            <div className="flex gap-3 mt-5">
+              <button onClick={() => setCreateModal(null)} className="btn flex-1">Cancelar</button>
               <button
                 onClick={handleCreateTicket}
                 disabled={!newTicket.title.trim()}
-                className={`flex-1 px-4 py-2.5 text-sm font-medium text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-                  newTicket.isDev ? 'bg-purple-600 hover:bg-purple-700' : 'bg-blue-600 hover:bg-blue-700'
-                }`}
+                className="flex-1 px-4 py-2 text-[13px] font-semibold text-white rounded-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                style={{ background: newTicket.isDev ? 'var(--purple)' : 'var(--blue)' }}
               >
                 {newTicket.isDev ? 'Criar → Demandas Tech' : 'Criar Ticket'}
               </button>
@@ -471,77 +484,90 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
 
       {/* Report Modal */}
       {reportModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
-          <div className="bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-2xl p-6 max-h-[85vh] overflow-y-auto">
+        <div className="fixed inset-0 flex items-center justify-center p-4 z-50" style={{ background: 'rgba(0,0,0,0.7)' }}>
+          <div className="rounded-2xl shadow-2xl w-full max-w-2xl p-6 max-h-[85vh] overflow-y-auto" style={{ background: 'var(--bg2)', border: '1px solid var(--border2)' }}>
             <div className="flex items-center justify-between mb-5">
               <div>
-                <h2 className="text-base font-semibold text-white">Relatório — {reportModal.nome}</h2>
-                <p className="text-xs text-gray-400 mt-0.5">{new Date(currentDate + 'T12:00:00').toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+                <h2 className="text-[15px] font-semibold" style={{ color: 'var(--text1)' }}>
+                  Relatório — {reportModal.nome}
+                </h2>
+                <p className="text-[11px] mt-0.5" style={{ color: 'var(--text3)' }}>
+                  {new Date(currentDate + 'T12:00:00').toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                </p>
               </div>
-              <button onClick={() => setReportModal(null)} className="p-1.5 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-colors">
+              <button onClick={() => setReportModal(null)} className="p-1.5 rounded-lg transition-colors hover:bg-white/[0.06] cursor-pointer" style={{ color: 'var(--text2)' }}>
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {brokerTickets(reportModal.nome).length === 0 ? (
               <div className="text-center py-12">
-                <FileText className="w-10 h-10 text-gray-600 mx-auto mb-3" />
-                <p className="text-sm text-gray-400">Nenhum ticket encontrado</p>
+                <FileText className="w-10 h-10 mx-auto mb-3" style={{ color: 'var(--text3)' }} />
+                <p className="text-[13px]" style={{ color: 'var(--text2)' }}>Nenhum ticket encontrado</p>
               </div>
             ) : (
               <div className="space-y-3">
-                {brokerTickets(reportModal.nome).map(ticket => {
-                  const cfg = statusConfig[ticket.status];
-                  const pcfg = priorityConfig[ticket.priority];
-                  return (
-                    <div key={ticket.id} className={`border rounded-xl p-4 border-l-4 ${pcfg?.border || 'border-l-gray-600'} border-gray-700 bg-gray-700/30`}>
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1 flex-wrap">
-                            <p className="text-sm font-semibold text-white truncate">{ticket.title}</p>
-                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${pcfg?.color}`}>{ticket.priority}</span>
-                            {isOverdue(ticket) && (
-                              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-orange-900/40 text-orange-400 border border-orange-700/50">
-                                ⏰ Atrasado
-                              </span>
-                            )}
-                            {ticket.isDev && (
-                              <span className="flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 bg-purple-900/50 text-purple-400 border border-purple-700/50 rounded">
-                                <Code2 className="w-2.5 h-2.5" /> Tech
-                              </span>
-                            )}
-                          </div>
-                          {ticket.description && <p className="text-xs text-gray-400 mb-2">{ticket.description}</p>}
-                          <div className="flex items-center gap-3 text-xs text-gray-500">
-                            <span>Por: <span className="text-gray-300">{ticket.createdBy}</span></span>
-                            {ticket.assignedTo && <span>Para: <span className="text-blue-400">{ticket.assignedTo}</span></span>}
-                            {!isCreatedToday(ticket.createdAt) && (
-                              <span className="text-gray-500">
-                                📅 {new Date(ticket.createdAt).toLocaleDateString('pt-BR')}
-                                {' '}
-                                <span className="text-orange-400/80">({dateLabel(ticket.createdAt)})</span>
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex flex-col gap-2 items-end">
-                          <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full border ${cfg?.color}`}>{ticket.status}</span>
-                          {ticket.status === 'Pendente' && (
-                            <button onClick={() => onUpdateTicket(ticket.id, 'Resolvido')} className="text-[11px] px-2 py-1 bg-green-900/40 text-green-400 border border-green-700/50 rounded-lg hover:bg-green-900/60 transition-colors">Resolver</button>
+                {brokerTickets(reportModal.nome).map(ticket => (
+                  <div
+                    key={ticket.id}
+                    style={{
+                      background: 'var(--bg3)',
+                      border: '1px solid var(--border)',
+                      borderLeft: `3px solid ${priorityReportBorder[ticket.priority] || 'var(--border)'}`,
+                      borderRadius: '10px',
+                    }}
+                    className="p-4"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <p className="text-[13px] font-semibold truncate" style={{ color: 'var(--text1)' }}>{ticket.title}</p>
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md" style={priorityBadgeStyle[ticket.priority]}>
+                            {ticket.priority}
+                          </span>
+                          {isOverdue(ticket) && (
+                            <span className="badge badge-orange">⏰ Atrasado</span>
                           )}
-                          {ticket.status === 'Em Andamento' && (
-                            <button onClick={() => onUpdateTicket(ticket.id, 'Resolvido')} className="text-[11px] px-2 py-1 bg-green-900/40 text-green-400 border border-green-700/50 rounded-lg hover:bg-green-900/60 transition-colors">Resolver</button>
+                          {ticket.isDev && (
+                            <span className="badge badge-purple"><Code2 className="w-2.5 h-2.5" /> Tech</span>
+                          )}
+                        </div>
+                        {ticket.description && (
+                          <p className="text-[12px] mb-2" style={{ color: 'var(--text2)' }}>{ticket.description}</p>
+                        )}
+                        <div className="flex items-center gap-3 text-[11px]" style={{ color: 'var(--text3)' }}>
+                          <span>Por: <span style={{ color: 'var(--text2)' }}>{ticket.createdBy}</span></span>
+                          {ticket.assignedTo && (
+                            <span>Para: <span style={{ color: 'var(--blue)' }}>{ticket.assignedTo}</span></span>
+                          )}
+                          {!isCreatedToday(ticket.createdAt) && (
+                            <span>
+                              📅 {new Date(ticket.createdAt).toLocaleDateString('pt-BR')}
+                              {' '}<span style={{ color: 'var(--orange)' }}>({dateLabel(ticket.createdAt)})</span>
+                            </span>
                           )}
                         </div>
                       </div>
+                      <div className="flex flex-col gap-2 items-end flex-shrink-0">
+                        <span className="status-badge num" style={statusBadgeStyle[ticket.status]}>{ticket.status}</span>
+                        {(ticket.status === 'Pendente' || ticket.status === 'Em Andamento') && (
+                          <button
+                            onClick={() => onUpdateTicket(ticket.id, 'Resolvido')}
+                            className="text-[11px] font-medium px-2.5 py-1 rounded-lg transition-all cursor-pointer hover:opacity-80"
+                            style={{ background: 'var(--green-bg)', border: '1px solid var(--green-border)', color: 'var(--green)' }}
+                          >
+                            Resolver
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  );
-                })}
+                  </div>
+                ))}
               </div>
             )}
 
-            <div className="flex justify-end mt-5 pt-4 border-t border-gray-700">
-              <button onClick={() => setReportModal(null)} className="px-5 py-2 text-sm font-medium text-gray-400 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">Fechar</button>
+            <div className="flex justify-end mt-5 pt-4" style={{ borderTop: '1px solid var(--border)' }}>
+              <button onClick={() => setReportModal(null)} className="btn btn-sm">Fechar</button>
             </div>
           </div>
         </div>
