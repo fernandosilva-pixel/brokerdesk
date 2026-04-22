@@ -45,15 +45,22 @@ export default function AdminView() {
         { headers: { 'Client-Token': 'F3991b4986b064bb8b9d915969658bc0cS' } }
       );
       const data = await res.json();
-      const list = (Array.isArray(data) ? data : data.chats ?? [])
-        .filter((c: any) => c.isGroup || (c.id && c.id.endsWith('@g.us')))
-        .map((c: any) => ({ id: c.id, name: c.name || c.subject || c.id }));
+      console.log('Z-API chats response:', JSON.stringify(data).slice(0, 500));
+      const raw = Array.isArray(data) ? data : (data.chats ?? data.value ?? []);
+      const list = raw
+        .map((c: any) => {
+          const gid = c.phone || c.id || c.chatId || c.jid || '';
+          const name = c.name || c.subject || c.pushName || gid;
+          return { id: gid, name };
+        })
+        .filter((c: any) => c.id.endsWith('@g.us') || c.id.includes('-'));
       setGroups(list);
-    } catch { setGroups([]); }
+    } catch (e) { console.error(e); setGroups([]); }
     setGroupsLoading(false);
   };
 
   const copyId = (id: string) => {
+    if (!id) return;
     navigator.clipboard.writeText(id);
     setGroupsCopied(id);
     setTimeout(() => setGroupsCopied(null), 2000);
