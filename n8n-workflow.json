@@ -6,7 +6,10 @@
       "name": "Webhook BrokerDesk",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
-      "position": [240, 500],
+      "position": [
+        240,
+        500
+      ],
       "parameters": {
         "httpMethod": "POST",
         "path": "brokerdesk",
@@ -19,7 +22,10 @@
       "name": "Novo Ticket — Formatar",
       "type": "n8n-nodes-base.code",
       "typeVersion": 1,
-      "position": [520, 200],
+      "position": [
+        520,
+        200
+      ],
       "parameters": {
         "jsCode": "const _b = $input.first().json.body;\nconst d = typeof _b === 'string' ? JSON.parse(_b) : _b;\nif (d.event !== 'ticket_created') return [];\n\nconst ALL_PHONES = ['573126402098', '5512981963736', '5512982871400'];\nconst t = d.ticket;\nconst devTag = t.is_dev ? '\\n🛠️ *Tipo:* Demandas Tech' : '';\nconst desc = t.description ? `\\n📝 *Descrição:* ${t.description}` : '';\n\nconst message =\n  `🚨 *Novo Ticket — Suporte MyBroker* 🚨\\n\\n` +\n  `🕵🏻‍♂️ *Prioridade:* ${t.priority}\\n` +\n  `🏢 *Broker:* ${t.broker}\\n` +\n  `📋 *Título:* ${t.title}` +\n  desc +\n  `\\n👤 *Aberto por:* ${t.created_by}` +\n  devTag +\n  `\\n🕐 ${new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}`;\n\nreturn ALL_PHONES.map(phone => ({ json: { phone, message } }));"
       }
@@ -29,20 +35,34 @@
       "name": "Novo Ticket — Enviar WhatsApp",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
-      "position": [800, 200],
+      "position": [
+        800,
+        200
+      ],
       "parameters": {
         "method": "POST",
         "url": "https://api.z-api.io/instances/3F1E76CBFC5FE12CD723BA4D31290A14/token/AD90D2009568787D0FE65CED/send-text",
         "sendHeaders": true,
         "headerParameters": {
-          "parameters": [{ "name": "Client-Token", "value": "F3991b4986b064bb8b9d915969658bc0cS" }]
+          "parameters": [
+            {
+              "name": "Client-Token",
+              "value": "F3991b4986b064bb8b9d915969658bc0cS"
+            }
+          ]
         },
         "sendBody": true,
         "contentType": "json",
         "bodyParameters": {
           "parameters": [
-            { "name": "phone", "value": "={{ $json.phone }}" },
-            { "name": "message", "value": "={{ $json.message }}" }
+            {
+              "name": "phone",
+              "value": "={{ $json.phone }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.message }}"
+            }
           ]
         },
         "options": {}
@@ -53,7 +73,10 @@
       "name": "Ticket Resolvido — Formatar",
       "type": "n8n-nodes-base.code",
       "typeVersion": 1,
-      "position": [520, 360],
+      "position": [
+        520,
+        360
+      ],
       "parameters": {
         "jsCode": "const _b = $input.first().json.body;\nconst d = typeof _b === 'string' ? JSON.parse(_b) : _b;\nif (d.event !== 'ticket_resolved') return [];\n\nconst ALL_PHONES = ['573126402098', '5512981963736', '5512982871400'];\nconst t = d.ticket;\n\nconst message =\n  `✅ *Ticket Resolvido — Suporte MyBroker*\\n\\n` +\n  `🏢 *Broker:* ${t.broker}\\n` +\n  `📋 *Título:* ${t.title}\\n` +\n  `👤 *Resolvido por:* ${t.resolved_by || 'Operador'}\\n\\n` +\n  `🕐 ${new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}`;\n\nreturn ALL_PHONES.map(phone => ({ json: { phone, message } }));"
       }
@@ -63,20 +86,34 @@
       "name": "Ticket Resolvido — Enviar WhatsApp",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
-      "position": [800, 360],
+      "position": [
+        800,
+        360
+      ],
       "parameters": {
         "method": "POST",
         "url": "https://api.z-api.io/instances/3F1E76CBFC5FE12CD723BA4D31290A14/token/AD90D2009568787D0FE65CED/send-text",
         "sendHeaders": true,
         "headerParameters": {
-          "parameters": [{ "name": "Client-Token", "value": "F3991b4986b064bb8b9d915969658bc0cS" }]
+          "parameters": [
+            {
+              "name": "Client-Token",
+              "value": "F3991b4986b064bb8b9d915969658bc0cS"
+            }
+          ]
         },
         "sendBody": true,
         "contentType": "json",
         "bodyParameters": {
           "parameters": [
-            { "name": "phone", "value": "={{ $json.phone }}" },
-            { "name": "message", "value": "={{ $json.message }}" }
+            {
+              "name": "phone",
+              "value": "={{ $json.phone }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.message }}"
+            }
           ]
         },
         "options": {}
@@ -87,7 +124,10 @@
       "name": "Tarefa Concluída — Formatar",
       "type": "n8n-nodes-base.code",
       "typeVersion": 1,
-      "position": [520, 520],
+      "position": [
+        520,
+        520
+      ],
       "parameters": {
         "jsCode": "const _b = $input.first().json.body;\nconst d = typeof _b === 'string' ? JSON.parse(_b) : _b;\nif (d.event !== 'routine_task_completed') return [];\n\nconst ADMIN_PHONE = '573126402098';\nconst task = d.task;\nconst cat = { manha: '🌅 Manhã', tarde: '🌇 Tarde', custom: '📌 Extra' }[task.category] || task.category;\n\nconst message =\n  `☑️ *Tarefa de Rotina Concluída — Suporte MyBroker*\\n\\n` +\n  `📋 *Tarefa:* ${task.title}\\n` +\n  `🗂️ *Período:* ${cat}\\n` +\n  `👤 *Operador:* ${task.completed_by || 'Operador'}\\n\\n` +\n  `🕐 ${new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}`;\n\nreturn [{ json: { phone: ADMIN_PHONE, message } }];"
       }
@@ -97,20 +137,34 @@
       "name": "Tarefa Concluída — Enviar WhatsApp",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
-      "position": [800, 520],
+      "position": [
+        800,
+        520
+      ],
       "parameters": {
         "method": "POST",
         "url": "https://api.z-api.io/instances/3F1E76CBFC5FE12CD723BA4D31290A14/token/AD90D2009568787D0FE65CED/send-text",
         "sendHeaders": true,
         "headerParameters": {
-          "parameters": [{ "name": "Client-Token", "value": "F3991b4986b064bb8b9d915969658bc0cS" }]
+          "parameters": [
+            {
+              "name": "Client-Token",
+              "value": "F3991b4986b064bb8b9d915969658bc0cS"
+            }
+          ]
         },
         "sendBody": true,
         "contentType": "json",
         "bodyParameters": {
           "parameters": [
-            { "name": "phone", "value": "={{ $json.phone }}" },
-            { "name": "message", "value": "={{ $json.message }}" }
+            {
+              "name": "phone",
+              "value": "={{ $json.phone }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.message }}"
+            }
           ]
         },
         "options": {}
@@ -121,7 +175,10 @@
       "name": "Notificação Admin — Formatar",
       "type": "n8n-nodes-base.code",
       "typeVersion": 1,
-      "position": [520, 680],
+      "position": [
+        520,
+        680
+      ],
       "parameters": {
         "jsCode": "const _b = $input.first().json.body;\nconst d = typeof _b === 'string' ? JSON.parse(_b) : _b;\nif (d.event !== 'admin_notification') return [];\n\nconst ALL_PHONES = ['573126402098', '5512981963736', '5512982871400'];\nconst notif = d.notification;\nconst emojis = { info: 'ℹ️', success: '✅', warning: '⚠️', error: '🚨' };\nconst emoji = emojis[notif.type] || 'ℹ️';\n\nconst message =\n  `${emoji} *Suporte MyBroker — ${notif.title}*\\n\\n` +\n  `${notif.message}\\n\\n` +\n  `🕐 ${new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}`;\n\nreturn ALL_PHONES.map(phone => ({ json: { phone, message } }));"
       }
@@ -131,20 +188,34 @@
       "name": "Notificação Admin — Enviar WhatsApp",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
-      "position": [800, 680],
+      "position": [
+        800,
+        680
+      ],
       "parameters": {
         "method": "POST",
         "url": "https://api.z-api.io/instances/3F1E76CBFC5FE12CD723BA4D31290A14/token/AD90D2009568787D0FE65CED/send-text",
         "sendHeaders": true,
         "headerParameters": {
-          "parameters": [{ "name": "Client-Token", "value": "F3991b4986b064bb8b9d915969658bc0cS" }]
+          "parameters": [
+            {
+              "name": "Client-Token",
+              "value": "F3991b4986b064bb8b9d915969658bc0cS"
+            }
+          ]
         },
         "sendBody": true,
         "contentType": "json",
         "bodyParameters": {
           "parameters": [
-            { "name": "phone", "value": "={{ $json.phone }}" },
-            { "name": "message", "value": "={{ $json.message }}" }
+            {
+              "name": "phone",
+              "value": "={{ $json.phone }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.message }}"
+            }
           ]
         },
         "options": {}
@@ -155,7 +226,10 @@
       "name": "Tickets Atrasados — Formatar",
       "type": "n8n-nodes-base.code",
       "typeVersion": 1,
-      "position": [520, 840],
+      "position": [
+        520,
+        840
+      ],
       "parameters": {
         "jsCode": "const _b = $input.first().json.body;\nconst d = typeof _b === 'string' ? JSON.parse(_b) : _b;\nif (d.event !== 'overdue_check' || !d.tickets || d.tickets.length === 0) return [];\n\nconst ALL_PHONES = ['573126402098', '5512981963736', '5512982871400'];\n\nconst lines = d.tickets.map(t =>\n  `• *${t.broker}* — ${t.titulo}\\n  📅 Criado: ${new Date(t.data_criacao).toLocaleDateString('pt-BR')} (${t.dias_em_aberto} dia${t.dias_em_aberto > 1 ? 's' : ''} em aberto)`\n).join('\\n\\n');\n\nconst message =\n  `🚨 *Suporte MyBroker — Demandas Atrasadas*\\n\\n` +\n  `${d.tickets.length} ticket${d.tickets.length > 1 ? 's' : ''} pendente${d.tickets.length > 1 ? 's' : ''} há mais de 3 dias:\\n\\n` +\n  lines +\n  `\\n\\n⚠️ Ação necessária!\\n🕐 ${new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}`;\n\nreturn ALL_PHONES.map(phone => ({ json: { phone, message } }));"
       }
@@ -165,20 +239,34 @@
       "name": "Tickets Atrasados — Enviar WhatsApp",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
-      "position": [800, 840],
+      "position": [
+        800,
+        840
+      ],
       "parameters": {
         "method": "POST",
         "url": "https://api.z-api.io/instances/3F1E76CBFC5FE12CD723BA4D31290A14/token/AD90D2009568787D0FE65CED/send-text",
         "sendHeaders": true,
         "headerParameters": {
-          "parameters": [{ "name": "Client-Token", "value": "F3991b4986b064bb8b9d915969658bc0cS" }]
+          "parameters": [
+            {
+              "name": "Client-Token",
+              "value": "F3991b4986b064bb8b9d915969658bc0cS"
+            }
+          ]
         },
         "sendBody": true,
         "contentType": "json",
         "bodyParameters": {
           "parameters": [
-            { "name": "phone", "value": "={{ $json.phone }}" },
-            { "name": "message", "value": "={{ $json.message }}" }
+            {
+              "name": "phone",
+              "value": "={{ $json.phone }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.message }}"
+            }
           ]
         },
         "options": {}
@@ -189,10 +277,18 @@
       "name": "Resumo Diário — 23:40",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1,
-      "position": [240, 1060],
+      "position": [
+        240,
+        1060
+      ],
       "parameters": {
         "rule": {
-          "interval": [{ "field": "cronExpression", "expression": "40 23 * * 1-5" }]
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "40 23 * * 1-5"
+            }
+          ]
         }
       }
     },
@@ -201,15 +297,24 @@
       "name": "Buscar Tickets — Supabase",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
-      "position": [520, 1060],
+      "position": [
+        520,
+        1060
+      ],
       "parameters": {
         "method": "GET",
         "url": "https://aybxefkcxqcsesoyeebu.supabase.co/rest/v1/tickets?status=in.(\"Pendente\",\"Em Andamento\",\"Resolvido\")&order=updated_at.desc&limit=200",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5YnhlZmtjeHFjc2Vzb3llZWJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNjY4NjgsImV4cCI6MjA5MTk0Mjg2OH0.Z8uCuwKtMpMYapEtoWlKri6fsx6JWeljWZFdnC_lfOo" },
-            { "name": "Authorization", "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5YnhlZmtjeHFjc2Vzb3llZWJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNjY4NjgsImV4cCI6MjA5MTk0Mjg2OH0.Z8uCuwKtMpMYapEtoWlKri6fsx6JWeljWZFdnC_lfOo" }
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5YnhlZmtjeHFjc2Vzb3llZWJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNjY4NjgsImV4cCI6MjA5MTk0Mjg2OH0.Z8uCuwKtMpMYapEtoWlKri6fsx6JWeljWZFdnC_lfOo"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5YnhlZmtjeHFjc2Vzb3llZWJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNjY4NjgsImV4cCI6MjA5MTk0Mjg2OH0.Z8uCuwKtMpMYapEtoWlKri6fsx6JWeljWZFdnC_lfOo"
+            }
           ]
         },
         "options": {}
@@ -220,7 +325,10 @@
       "name": "Formatar Resumo Diário",
       "type": "n8n-nodes-base.code",
       "typeVersion": 1,
-      "position": [800, 1060],
+      "position": [
+        800,
+        1060
+      ],
       "parameters": {
         "jsCode": "const ADMIN_PHONE = '573126402098';\n\nconst tickets = $input.all().map(i => i.json);\n\nconst now = new Date();\nconst brazilDate = now.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });\nconst todayStartUTC = new Date(brazilDate + 'T03:00:00Z');\n\nconst resolvedToday = tickets.filter(t => {\n  if (t.status !== 'Resolvido') return false;\n  const updated = new Date(t.updated_at);\n  return updated >= todayStartUTC;\n});\n\nconst pending = tickets.filter(t => t.status === 'Pendente');\nconst inProgress = tickets.filter(t => t.status === 'Em Andamento');\n\nconst byAssignee = {};\nresolvedToday.forEach(t => {\n  const name = (t.assigned_to || 'Sem atribuição').split('@')[0];\n  byAssignee[name] = (byAssignee[name] || 0) + 1;\n});\n\nconst sorted = Object.entries(byAssignee).sort((a, b) => b[1] - a[1]);\nconst topResolver = sorted.length > 0\n  ? `🏆 *Destaque do dia:* ${sorted[0][0]} (${sorted[0][1]} ticket${sorted[0][1] > 1 ? 's' : ''})`\n  : '⚠️ Nenhum ticket resolvido hoje';\n\nconst resolvedLines = sorted.length > 0\n  ? sorted.map(([name, count]) => `  • ${name}: ${count} ticket${count > 1 ? 's' : ''}`).join('\\n')\n  : '  Nenhum';\n\nconst pendingBrokers = [...new Set(pending.map(t => t.broker_nome || t.broker))];\nconst brokerList = pendingBrokers.length > 0\n  ? pendingBrokers.map(b => `  • ${b}`).join('\\n')\n  : '  ✅ Nenhuma pendência!';\n\nconst today = now.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'America/Sao_Paulo' });\n\nconst message =\n  `📊 *Suporte MyBroker — Fechamento do Dia*\\n\\n` +\n  `📅 ${today}\\n\\n` +\n  `✅ *Resolvidos hoje:* ${resolvedToday.length}\\n${resolvedLines}\\n\\n` +\n  `${topResolver}\\n\\n` +\n  `⏳ *Ainda pendentes:* ${pending.length}\\n` +\n  `▶️ *Em Andamento:* ${inProgress.length}\\n\\n` +\n  `🔴 *Brokers com pendências:*\\n${brokerList}`;\n\nreturn [{ json: { phone: ADMIN_PHONE, message } }];"
       }
@@ -230,20 +338,34 @@
       "name": "Resumo Diário — Enviar WhatsApp",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
-      "position": [1080, 1060],
+      "position": [
+        1080,
+        1060
+      ],
       "parameters": {
         "method": "POST",
         "url": "https://api.z-api.io/instances/3F1E76CBFC5FE12CD723BA4D31290A14/token/AD90D2009568787D0FE65CED/send-text",
         "sendHeaders": true,
         "headerParameters": {
-          "parameters": [{ "name": "Client-Token", "value": "F3991b4986b064bb8b9d915969658bc0cS" }]
+          "parameters": [
+            {
+              "name": "Client-Token",
+              "value": "F3991b4986b064bb8b9d915969658bc0cS"
+            }
+          ]
         },
         "sendBody": true,
         "contentType": "json",
         "bodyParameters": {
           "parameters": [
-            { "name": "phone", "value": "={{ $json.phone }}" },
-            { "name": "message", "value": "={{ $json.message }}" }
+            {
+              "name": "phone",
+              "value": "={{ $json.phone }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.message }}"
+            }
           ]
         },
         "options": {}
@@ -254,10 +376,18 @@
       "name": "Rotina do Dia — 09:00",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1,
-      "position": [240, 1260],
+      "position": [
+        240,
+        1260
+      ],
       "parameters": {
         "rule": {
-          "interval": [{ "field": "cronExpression", "expression": "0 9 * * 1-5" }]
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * 1-5"
+            }
+          ]
         }
       }
     },
@@ -266,15 +396,24 @@
       "name": "Buscar Tarefas de Rotina — Supabase",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
-      "position": [520, 1260],
+      "position": [
+        520,
+        1260
+      ],
       "parameters": {
         "method": "GET",
         "url": "https://aybxefkcxqcsesoyeebu.supabase.co/rest/v1/routine_tasks?ativo=eq.true&order=category,time",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5YnhlZmtjeHFjc2Vzb3llZWJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNjY4NjgsImV4cCI6MjA5MTk0Mjg2OH0.Z8uCuwKtMpMYapEtoWlKri6fsx6JWeljWZFdnC_lfOo" },
-            { "name": "Authorization", "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5YnhlZmtjeHFjc2Vzb3llZWJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNjY4NjgsImV4cCI6MjA5MTk0Mjg2OH0.Z8uCuwKtMpMYapEtoWlKri6fsx6JWeljWZFdnC_lfOo" }
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5YnhlZmtjeHFjc2Vzb3llZWJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNjY4NjgsImV4cCI6MjA5MTk0Mjg2OH0.Z8uCuwKtMpMYapEtoWlKri6fsx6JWeljWZFdnC_lfOo"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5YnhlZmtjeHFjc2Vzb3llZWJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNjY4NjgsImV4cCI6MjA5MTk0Mjg2OH0.Z8uCuwKtMpMYapEtoWlKri6fsx6JWeljWZFdnC_lfOo"
+            }
           ]
         },
         "options": {}
@@ -285,7 +424,10 @@
       "name": "Formatar Rotina do Dia",
       "type": "n8n-nodes-base.code",
       "typeVersion": 1,
-      "position": [800, 1260],
+      "position": [
+        800,
+        1260
+      ],
       "parameters": {
         "jsCode": "const ALL_PHONES = ['573126402098', '5512981963736', '5512982871400'];\n\nconst tasks = $input.all().map(i => i.json);\nif (tasks.length === 0) return [];\n\nconst manha = tasks.filter(t => t.category === 'manha').sort((a, b) => (a.time || '').localeCompare(b.time || ''));\nconst tarde = tasks.filter(t => t.category === 'tarde').sort((a, b) => (a.time || '').localeCompare(b.time || ''));\nconst extra = tasks.filter(t => t.category !== 'manha' && t.category !== 'tarde');\n\nconst fmt = items => items.map(t => `  ☐ ${t.time ? t.time + ' — ' : ''}${t.title}`).join('\\n');\n\nconst sections = [\n  manha.length > 0 ? `🌅 *Manhã*\\n${fmt(manha)}` : '',\n  tarde.length > 0 ? `🌇 *Tarde*\\n${fmt(tarde)}` : '',\n  extra.length > 0 ? `📌 *Extra*\\n${fmt(extra)}` : '',\n].filter(s => s).join('\\n\\n');\n\nconst today = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'America/Sao_Paulo' });\n\nconst message =\n  `📋 *Suporte MyBroker — Rotina do Dia*\\n\\n` +\n  `📅 ${today}\\n\\n` +\n  sections +\n  `\\n\\n💪 Bom trabalho, equipe!`;\n\nreturn ALL_PHONES.map(phone => ({ json: { phone, message } }));"
       }
@@ -295,10 +437,18 @@
       "name": "Lembrete Rotina — 10:00",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1,
-      "position": [240, 1460],
+      "position": [
+        240,
+        1460
+      ],
       "parameters": {
         "rule": {
-          "interval": [{ "field": "cronExpression", "expression": "0 10 * * 1-5" }]
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 10 * * 1-5"
+            }
+          ]
         }
       }
     },
@@ -307,15 +457,24 @@
       "name": "Buscar Tarefas Manhã — Supabase",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
-      "position": [520, 1460],
+      "position": [
+        520,
+        1460
+      ],
       "parameters": {
         "method": "GET",
         "url": "https://aybxefkcxqcsesoyeebu.supabase.co/rest/v1/routine_tasks?ativo=eq.true&category=eq.manha",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5YnhlZmtjeHFjc2Vzb3llZWJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNjY4NjgsImV4cCI6MjA5MTk0Mjg2OH0.Z8uCuwKtMpMYapEtoWlKri6fsx6JWeljWZFdnC_lfOo" },
-            { "name": "Authorization", "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5YnhlZmtjeHFjc2Vzb3llZWJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNjY4NjgsImV4cCI6MjA5MTk0Mjg2OH0.Z8uCuwKtMpMYapEtoWlKri6fsx6JWeljWZFdnC_lfOo" }
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5YnhlZmtjeHFjc2Vzb3llZWJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNjY4NjgsImV4cCI6MjA5MTk0Mjg2OH0.Z8uCuwKtMpMYapEtoWlKri6fsx6JWeljWZFdnC_lfOo"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5YnhlZmtjeHFjc2Vzb3llZWJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNjY4NjgsImV4cCI6MjA5MTk0Mjg2OH0.Z8uCuwKtMpMYapEtoWlKri6fsx6JWeljWZFdnC_lfOo"
+            }
           ]
         },
         "options": {}
@@ -326,15 +485,24 @@
       "name": "Buscar Conclusões de Hoje — Supabase",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
-      "position": [800, 1460],
+      "position": [
+        800,
+        1460
+      ],
       "parameters": {
         "method": "GET",
         "url": "={{ 'https://aybxefkcxqcsesoyeebu.supabase.co/rest/v1/routine_completions?completed_date=eq.' + new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' }) }}",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5YnhlZmtjeHFjc2Vzb3llZWJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNjY4NjgsImV4cCI6MjA5MTk0Mjg2OH0.Z8uCuwKtMpMYapEtoWlKri6fsx6JWeljWZFdnC_lfOo" },
-            { "name": "Authorization", "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5YnhlZmtjeHFjc2Vzb3llZWJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNjY4NjgsImV4cCI6MjA5MTk0Mjg2OH0.Z8uCuwKtMpMYapEtoWlKri6fsx6JWeljWZFdnC_lfOo" }
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5YnhlZmtjeHFjc2Vzb3llZWJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNjY4NjgsImV4cCI6MjA5MTk0Mjg2OH0.Z8uCuwKtMpMYapEtoWlKri6fsx6JWeljWZFdnC_lfOo"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5YnhlZmtjeHFjc2Vzb3llZWJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNjY4NjgsImV4cCI6MjA5MTk0Mjg2OH0.Z8uCuwKtMpMYapEtoWlKri6fsx6JWeljWZFdnC_lfOo"
+            }
           ]
         },
         "options": {}
@@ -345,7 +513,10 @@
       "name": "Verificar Pendências — Formatar",
       "type": "n8n-nodes-base.code",
       "typeVersion": 1,
-      "position": [1080, 1460],
+      "position": [
+        1080,
+        1460
+      ],
       "parameters": {
         "jsCode": "const OPERATORS = [\n  { email: 'proveta24k@gmail.com', phone: '5512981963736', firstName: 'Renan' },\n  { email: 'felipe.jose@asap.codes', phone: '5512982871400', firstName: 'Felipe' },\n];\n\nconst morningTasks = $('Buscar Tarefas Manhã — Supabase').all().map(i => i.json);\nconst completions = $input.all().map(i => i.json);\n\nif (morningTasks.length === 0) return [];\n\nconst results = [];\n\nfor (const op of OPERATORS) {\n  const opCompletedIds = new Set(\n    completions\n      .filter(c => c.completed_by === op.email)\n      .map(c => c.task_id)\n      .filter(Boolean)\n  );\n  const pending = morningTasks.filter(t => !opCompletedIds.has(t.id));\n  if (pending.length === 0) continue;\n\n  const pendingList = pending.map(t => `  • ${t.time ? t.time + ' — ' : ''}${t.title}`).join('\\n');\n\n  const message =\n    `⏰ *Suporte MyBroker — Lembrete de Rotina*\\n\\n` +\n    `Ei, ${op.firstName}! São 10h da manhã e você ainda tem ${pending.length} tarefa${pending.length > 1 ? 's' : ''} da manhã pendente${pending.length > 1 ? 's' : ''}:\\n\\n` +\n    pendingList +\n    `\\n\\nNão deixa pra última hora — a rotina em dia é o que mantém o time operando no máximo! 💪\\n📱 Acesse o BrokerDesk e marque conforme for concluindo.`;\n\n  results.push({ json: { phone: op.phone, message } });\n}\n\nreturn results;"
       }
@@ -355,20 +526,34 @@
       "name": "Lembrete Rotina — Enviar WhatsApp",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
-      "position": [1360, 1460],
+      "position": [
+        1360,
+        1460
+      ],
       "parameters": {
         "method": "POST",
         "url": "https://api.z-api.io/instances/3F1E76CBFC5FE12CD723BA4D31290A14/token/AD90D2009568787D0FE65CED/send-text",
         "sendHeaders": true,
         "headerParameters": {
-          "parameters": [{ "name": "Client-Token", "value": "F3991b4986b064bb8b9d915969658bc0cS" }]
+          "parameters": [
+            {
+              "name": "Client-Token",
+              "value": "F3991b4986b064bb8b9d915969658bc0cS"
+            }
+          ]
         },
         "sendBody": true,
         "contentType": "json",
         "bodyParameters": {
           "parameters": [
-            { "name": "phone", "value": "={{ $json.phone }}" },
-            { "name": "message", "value": "={{ $json.message }}" }
+            {
+              "name": "phone",
+              "value": "={{ $json.phone }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.message }}"
+            }
           ]
         },
         "options": {}
@@ -379,20 +564,133 @@
       "name": "Rotina do Dia — Enviar WhatsApp",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
-      "position": [1080, 1260],
+      "position": [
+        1080,
+        1260
+      ],
       "parameters": {
         "method": "POST",
         "url": "https://api.z-api.io/instances/3F1E76CBFC5FE12CD723BA4D31290A14/token/AD90D2009568787D0FE65CED/send-text",
         "sendHeaders": true,
         "headerParameters": {
-          "parameters": [{ "name": "Client-Token", "value": "F3991b4986b064bb8b9d915969658bc0cS" }]
+          "parameters": [
+            {
+              "name": "Client-Token",
+              "value": "F3991b4986b064bb8b9d915969658bc0cS"
+            }
+          ]
         },
         "sendBody": true,
         "contentType": "json",
         "bodyParameters": {
           "parameters": [
-            { "name": "phone", "value": "={{ $json.phone }}" },
-            { "name": "message", "value": "={{ $json.message }}" }
+            {
+              "name": "phone",
+              "value": "={{ $json.phone }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.message }}"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "sched-weekly-dept",
+      "name": "Relatório Semanal — Segunda 09:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        1660
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 12 * * 1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "http-supabase-weekly",
+      "name": "Buscar Tickets Semana — Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        520,
+        1660
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://aybxefkcxqcsesoyeebu.supabase.co/rest/v1/tickets?created_at=gte.{{ new Date(Date.now()-7*24*60*60*1000).toISOString() }}&order=created_at.desc&limit=500",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5YnhlZmtjeHFjc2Vzb3llZWJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNjY4NjgsImV4cCI6MjA5MTk0Mjg2OH0.Z8uCuwKtMpMYapEtoWlKri6fsx6JWeljWZFdnC_lfOo"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5YnhlZmtjeHFjc2Vzb3llZWJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNjY4NjgsImV4cCI6MjA5MTk0Mjg2OH0.Z8uCuwKtMpMYapEtoWlKri6fsx6JWeljWZFdnC_lfOo"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "code-weekly-dept",
+      "name": "Formatar Relatório Semanal",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        1660
+      ],
+      "parameters": {
+        "jsCode": "\nconst ADMIN_PHONE = '573126402098';\nconst tickets = .all().map(i => i.json);\n\nif (tickets.length === 0) {\n  return [{ json: { phone: ADMIN_PHONE, message: '📊 *Relatório Semanal — Suporte MyBroker*\\n\\nNenhum ticket criado na última semana.' } }];\n}\n\nconst depts = {};\nfor (const t of tickets) {\n  const d = t.department || 'Outros';\n  if (!depts[d]) depts[d] = { total: 0, resolvidos: 0, pendentes: 0 };\n  depts[d].total++;\n  if (t.status === 'Resolvido' || t.status === 'Fechado') depts[d].resolvidos++;\n  else depts[d].pendentes++;\n}\n\nconst sorted = Object.entries(depts).sort((a, b) => b[1].total - a[1].total);\nconst lines = sorted.map(([dept, s], i) => {\n  const medal = i === 0 ? '🔴' : i === 1 ? '🟠' : i === 2 ? '🟡' : '⚪';\n  return ;\n}).join('\\n');\n\nconst top = sorted[0][0];\nconst now = new Date().toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo', weekday: 'long', day: 'numeric', month: 'long' });\n\nconst message =\n   +\n   +\n   +\n   +\n  ;\n\nreturn [{ json: { phone: ADMIN_PHONE, message } }];\n"
+      }
+    },
+    {
+      "id": "http-weekly-whatsapp",
+      "name": "Relatório Semanal — Enviar WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        1080,
+        1660
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3F1E76CBFC5FE12CD723BA4D31290A14/token/AD90D2009568787D0FE65CED/send-text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Client-Token",
+              "value": "F3991b4986b064bb8b9d915969658bc0cS"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $json.phone }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.message }}"
+            }
           ]
         },
         "options": {}
@@ -401,62 +699,241 @@
   ],
   "connections": {
     "Webhook BrokerDesk": {
-      "main": [[
-        { "node": "Novo Ticket — Formatar", "type": "main", "index": 0 },
-        { "node": "Ticket Resolvido — Formatar", "type": "main", "index": 0 },
-        { "node": "Tarefa Concluída — Formatar", "type": "main", "index": 0 },
-        { "node": "Notificação Admin — Formatar", "type": "main", "index": 0 },
-        { "node": "Tickets Atrasados — Formatar", "type": "main", "index": 0 }
-      ]]
+      "main": [
+        [
+          {
+            "node": "Novo Ticket — Formatar",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Ticket Resolvido — Formatar",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Tarefa Concluída — Formatar",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Notificação Admin — Formatar",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Tickets Atrasados — Formatar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Novo Ticket — Formatar": {
-      "main": [[{ "node": "Novo Ticket — Enviar WhatsApp", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Novo Ticket — Enviar WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Ticket Resolvido — Formatar": {
-      "main": [[{ "node": "Ticket Resolvido — Enviar WhatsApp", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Ticket Resolvido — Enviar WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Tarefa Concluída — Formatar": {
-      "main": [[{ "node": "Tarefa Concluída — Enviar WhatsApp", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Tarefa Concluída — Enviar WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Notificação Admin — Formatar": {
-      "main": [[{ "node": "Notificação Admin — Enviar WhatsApp", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Notificação Admin — Enviar WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Tickets Atrasados — Formatar": {
-      "main": [[{ "node": "Tickets Atrasados — Enviar WhatsApp", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Tickets Atrasados — Enviar WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Resumo Diário — 23:40": {
-      "main": [[{ "node": "Buscar Tickets — Supabase", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Buscar Tickets — Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Buscar Tickets — Supabase": {
-      "main": [[{ "node": "Formatar Resumo Diário", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Formatar Resumo Diário",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Formatar Resumo Diário": {
-      "main": [[{ "node": "Resumo Diário — Enviar WhatsApp", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Resumo Diário — Enviar WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Rotina do Dia — 09:00": {
-      "main": [[{ "node": "Buscar Tarefas de Rotina — Supabase", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Buscar Tarefas de Rotina — Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Buscar Tarefas de Rotina — Supabase": {
-      "main": [[{ "node": "Formatar Rotina do Dia", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Formatar Rotina do Dia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Formatar Rotina do Dia": {
-      "main": [[{ "node": "Rotina do Dia — Enviar WhatsApp", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Rotina do Dia — Enviar WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Lembrete Rotina — 10:00": {
-      "main": [[{ "node": "Buscar Tarefas Manhã — Supabase", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Buscar Tarefas Manhã — Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Buscar Tarefas Manhã — Supabase": {
-      "main": [[{ "node": "Buscar Conclusões de Hoje — Supabase", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Buscar Conclusões de Hoje — Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Buscar Conclusões de Hoje — Supabase": {
-      "main": [[{ "node": "Verificar Pendências — Formatar", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Verificar Pendências — Formatar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Verificar Pendências — Formatar": {
-      "main": [[{ "node": "Lembrete Rotina — Enviar WhatsApp", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Lembrete Rotina — Enviar WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Relatório Semanal — Segunda 09:00": {
+      "main": [
+        [
+          {
+            "node": "Buscar Tickets Semana — Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Tickets Semana — Supabase": {
+      "main": [
+        [
+          {
+            "node": "Formatar Relatório Semanal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatar Relatório Semanal": {
+      "main": [
+        [
+          {
+            "node": "Relatório Semanal — Enviar WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
-  "settings": { "executionOrder": "v1" },
+  "settings": {
+    "executionOrder": "v1"
+  },
   "tags": [],
-  "meta": { "instanceId": "brokerdesk" }
+  "meta": {
+    "instanceId": "brokerdesk"
+  }
 }

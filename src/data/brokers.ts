@@ -20,6 +20,7 @@ export type Ticket = {
   createdAt: string;
   updatedAt: string;
   isDev?: boolean;
+  department?: string;
 };
 
 export const brokers: Broker[] = [];

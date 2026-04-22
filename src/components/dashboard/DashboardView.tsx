@@ -65,6 +65,7 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
     description: '',
     priority: 'Média' as Ticket['priority'],
     assignedTo: '',
+    department: 'Outros',
     isDev: false,
   });
   const [operators, setOperators] = useState<Profile[]>([]);
@@ -125,9 +126,10 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       isDev: newTicket.isDev,
+      department: newTicket.department,
     };
     onAddTicket(ticket);
-    setNewTicket({ title: '', description: '', priority: 'Média', assignedTo: '', isDev: false });
+    setNewTicket({ title: '', description: '', priority: 'Média', assignedTo: '', department: 'Outros', isDev: false });
     setCreateModal(null);
   };
 
@@ -474,6 +476,20 @@ export default function DashboardView({ searchTerm, currentUser, brokers, ticket
                     ))}
                   </select>
                 </div>
+              </div>
+
+              {/* Departamento */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-300 mb-1.5">Departamento</label>
+                <select
+                  value={newTicket.department}
+                  onChange={e => setNewTicket(p => ({ ...p, department: e.target.value }))}
+                  className="w-full px-3 py-2.5 text-sm bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                >
+                  {['Depósito','Saque','Compliance (KYC)','Operações (Trade)','GGR','Cupom','Sinais','Outros'].map(d => (
+                    <option key={d}>{d}</option>
+                  ))}
+                </select>
               </div>
 
               {/* Toggle Demandas Tech */}

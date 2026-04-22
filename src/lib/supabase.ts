@@ -36,6 +36,7 @@ export type TicketRow = {
   assigned_to: string;
   created_by: string;
   is_dev: boolean;
+  department: string;
   date: string;
   created_at: string;
   updated_at: string;

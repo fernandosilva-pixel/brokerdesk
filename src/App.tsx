@@ -31,7 +31,7 @@ function ticketFromRow(row: TicketRow, brokers: Broker[]): Ticket {
     title: row.title, description: row.description,
     assignedTo: row.assigned_to, createdBy: row.created_by,
     createdAt: row.created_at, updatedAt: row.updated_at,
-    isDev: row.is_dev,
+    isDev: row.is_dev, department: row.department,
   };
 }
 
@@ -110,6 +110,7 @@ function AppInner() {
       assigned_to: ticket.assignedTo,
       created_by: ticket.createdBy,
       is_dev: ticket.isDev,
+      department: ticket.department ?? 'Outros',
       date: ticket.date,
     }).select().single();
     if (!error && data) {
@@ -123,6 +124,7 @@ function AppInner() {
           description: newTicket.description,
           broker: newTicket.broker.nome,
           priority: newTicket.priority,
+          department: newTicket.department,
           created_by: newTicket.createdBy,
           is_dev: newTicket.isDev,
         },
