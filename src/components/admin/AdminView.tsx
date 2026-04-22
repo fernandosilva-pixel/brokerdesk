@@ -35,25 +35,28 @@ export default function AdminView() {
   const [groups, setGroups] = useState<{id: string; name: string}[]>([]);
   const [groupsLoading, setGroupsLoading] = useState(false);
   const [groupsCopied, setGroupsCopied] = useState<string | null>(null);
+  const [rawJson, setRawJson] = useState<string>('');
 
   const fetchGroups = async () => {
     setGroupsLoading(true);
     setGroups([]);
+    setRawJson('');
     try {
       const res = await fetch(
         'https://api.z-api.io/instances/3F1E76CBFC5FE12CD723BA4D31290A14/token/AD90D2009568787D0FE65CED/chats?page=1&pageSize=100',
         { headers: { 'Client-Token': 'F3991b4986b064bb8b9d915969658bc0cS' } }
       );
       const data = await res.json();
-      console.log('Z-API chats response:', JSON.stringify(data).slice(0, 500));
+      // Show raw JSON of first 2 items so we can see the exact field structure
       const raw = Array.isArray(data) ? data : (data.chats ?? data.value ?? []);
+      setRawJson(JSON.stringify(raw.slice(0, 2), null, 2));
       const list = raw
         .map((c: any) => {
           const gid = c.phone || c.id || c.chatId || c.jid || '';
           const name = c.name || c.subject || c.pushName || gid;
           return { id: gid, name };
         })
-        .filter((c: any) => c.id.endsWith('@g.us') || c.id.includes('-'));
+        .filter((c: any) => c.id.endsWith('@g.us') || c.id.includes('-') || c.id.length > 10);
       setGroups(list);
     } catch (e) { console.error(e); setGroups([]); }
     setGroupsLoading(false);
@@ -387,8 +390,14 @@ export default function AdminView() {
               ))}
             </div>
           )}
-          {!groupsLoading && groups.length === 0 && (
+          {!groupsLoading && groups.length === 0 && !rawJson && (
             <p className="text-xs text-gray-500 text-center py-3">Clique em "Buscar grupos" para listar os grupos disponíveis.</p>
+          )}
+          {rawJson && (
+            <div className="mt-3">
+              <p className="text-xs text-yellow-400 font-semibold mb-1">JSON bruto dos primeiros 2 chats (para diagnóstico):</p>
+              <pre className="text-[10px] text-gray-300 bg-gray-900 rounded-lg p-3 overflow-x-auto max-h-48 overflow-y-auto">{rawJson}</pre>
+            </div>
           )}
         </div>
       )}
