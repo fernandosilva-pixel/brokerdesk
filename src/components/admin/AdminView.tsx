@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   Plus, Trash2, Edit2, X, Check, Building2,
   Bell, AlertTriangle, Info, CheckCircle, XCircle,
-  Globe, Mail, Phone, User, ShieldAlert,
+  Globe, Mail, Phone, User, ShieldAlert, MessageCircle, Copy,
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import type { BrokerRow, NotificationRow } from '../../lib/supabase';
@@ -30,6 +30,34 @@ export default function AdminView() {
   const [clearing, setClearing] = useState(false);
 
   const isSuperAdmin = user?.email === SUPER_ADMIN;
+
+  // WhatsApp Groups
+  const [groups, setGroups] = useState<{id: string; name: string}[]>([]);
+  const [groupsLoading, setGroupsLoading] = useState(false);
+  const [groupsCopied, setGroupsCopied] = useState<string | null>(null);
+
+  const fetchGroups = async () => {
+    setGroupsLoading(true);
+    setGroups([]);
+    try {
+      const res = await fetch(
+        'https://api.z-api.io/instances/3F1E76CBFC5FE12CD723BA4D31290A14/token/AD90D2009568787D0FE65CED/chats?page=1&pageSize=100',
+        { headers: { 'Client-Token': 'F3991b4986b064bb8b9d915969658bc0cS' } }
+      );
+      const data = await res.json();
+      const list = (Array.isArray(data) ? data : data.chats ?? [])
+        .filter((c: any) => c.isGroup || (c.id && c.id.endsWith('@g.us')))
+        .map((c: any) => ({ id: c.id, name: c.name || c.subject || c.id }));
+      setGroups(list);
+    } catch { setGroups([]); }
+    setGroupsLoading(false);
+  };
+
+  const copyId = (id: string) => {
+    navigator.clipboard.writeText(id);
+    setGroupsCopied(id);
+    setTimeout(() => setGroupsCopied(null), 2000);
+  };
 
   // Brokers
   const [brokers, setBrokers] = useState<BrokerRow[]>([]);
@@ -310,6 +338,51 @@ export default function AdminView() {
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {/* ── Grupos WhatsApp ── */}
+      {isSuperAdmin && (
+        <div className="bg-gray-800 border border-gray-700 rounded-xl p-5">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <MessageCircle className="w-4 h-4 text-green-400" />
+              <h3 className="text-sm font-semibold text-white">Grupos WhatsApp</h3>
+              <span className="text-xs text-gray-500">— copie o ID do grupo desejado</span>
+            </div>
+            <button
+              onClick={fetchGroups}
+              disabled={groupsLoading}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-green-900/30 border border-green-700/50 text-green-400 hover:bg-green-900/50 transition-colors disabled:opacity-50"
+            >
+              {groupsLoading
+                ? <span className="w-3 h-3 border-2 border-green-400/30 border-t-green-400 rounded-full animate-spin" />
+                : <MessageCircle className="w-3 h-3" />}
+              {groupsLoading ? 'Buscando...' : 'Buscar grupos'}
+            </button>
+          </div>
+          {groups.length > 0 && (
+            <div className="space-y-2">
+              {groups.map(g => (
+                <div key={g.id} className="flex items-center justify-between px-3 py-2.5 bg-gray-700/50 rounded-lg border border-gray-600/50">
+                  <div>
+                    <p className="text-sm font-medium text-gray-100">{g.name}</p>
+                    <p className="text-[11px] text-gray-400 font-mono mt-0.5">{g.id}</p>
+                  </div>
+                  <button
+                    onClick={() => copyId(g.id)}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg bg-gray-600 hover:bg-gray-500 text-gray-200 transition-colors flex-shrink-0 ml-3"
+                  >
+                    {groupsCopied === g.id ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" />}
+                    {groupsCopied === g.id ? 'Copiado!' : 'Copiar ID'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          {!groupsLoading && groups.length === 0 && (
+            <p className="text-xs text-gray-500 text-center py-3">Clique em "Buscar grupos" para listar os grupos disponíveis.</p>
+          )}
         </div>
       )}
 
