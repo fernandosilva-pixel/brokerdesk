@@ -70,7 +70,8 @@ export default function WhatsAppView() {
 
   useEffect(() => {
     loadWebhookUrl().then(() => {
-      setConfig(prev => ({ ...prev, n8nWebhookUrl: getWebhookUrl() }));
+      const url = getWebhookUrl();
+      if (url) setConfig(prev => ({ ...prev, n8nWebhookUrl: url }));
     });
   }, []);
   const [templates, setTemplates] = useState<AlertTemplate[]>(DEFAULT_TEMPLATES);
