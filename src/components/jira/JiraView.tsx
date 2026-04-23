@@ -1,64 +1,135 @@
 import React, { useState } from 'react';
-import { AlertTriangle, ExternalLink, RefreshCw } from 'lucide-react';
+import { Kanban, Send, CheckCircle2, AlertTriangle, RefreshCw } from 'lucide-react';
 
-const JIRA_URL = 'https://asap-team.atlassian.net/jira/software/c/form/24ca704a-aeab-4bb3-9f24-3945c111402b';
+const JIRA_WEBHOOK = 'https://gregsupport.app.n8n.cloud/webhook/jira-create';
 
-export default function JiraView() {
-  const [blocked, setBlocked] = useState(false);
+interface Props {
+  currentUserEmail: string;
+}
+
+type Status = 'idle' | 'submitting' | 'success' | 'error';
+
+export default function JiraView({ currentUserEmail }: Props) {
+  const [email, setEmail] = useState(currentUserEmail);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [status, setStatus] = useState<Status>('idle');
+
+  const canSubmit = title.trim().length > 0 && description.trim().length > 0 && status !== 'submitting';
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!canSubmit) return;
+    setStatus('submitting');
+    try {
+      const res = await fetch(JIRA_WEBHOOK, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, title, description }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.key) {
+        setStatus('success');
+        setTitle('');
+        setDescription('');
+      } else {
+        setStatus('error');
+      }
+    } catch {
+      setStatus('error');
+    }
+  };
+
+  if (status === 'success') {
+    return (
+      <div className="max-w-lg mx-auto flex flex-col items-center justify-center gap-4 py-20 text-center">
+        <div className="w-16 h-16 bg-green-900/30 rounded-full flex items-center justify-center">
+          <CheckCircle2 className="w-8 h-8 text-green-400" />
+        </div>
+        <p className="text-base font-semibold text-white">Ticket criado no Jira!</p>
+        <p className="text-xs text-gray-400">O time de desenvolvimento já foi notificado.</p>
+        <button
+          onClick={() => setStatus('idle')}
+          className="mt-2 px-5 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+        >
+          Criar outro ticket
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-8rem)]">
-      {blocked ? (
-        <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
-          <AlertTriangle className="w-10 h-10 text-yellow-500" />
-          <p className="text-sm font-semibold text-white">O Jira bloqueou a incorporação via iframe</p>
-          <p className="text-xs text-gray-400 max-w-xs">
-            Alguns ambientes Atlassian impedem o carregamento em frames externos por política de segurança.
-          </p>
-          <a
-            href={JIRA_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
-          >
-            <ExternalLink className="w-4 h-4" />
-            Abrir formulário no Jira
-          </a>
+    <div className="max-w-lg mx-auto">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-9 h-9 bg-blue-600/20 rounded-xl flex items-center justify-center">
+          <Kanban className="w-5 h-5 text-blue-400" />
         </div>
-      ) : (
-        <>
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-xs text-gray-500">Formulário carregado diretamente do Jira</p>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => {
-                  setBlocked(false);
-                  const frame = document.getElementById('jira-frame') as HTMLIFrameElement;
-                  if (frame) { frame.src = JIRA_URL; }
-                }}
-                className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-200 px-2.5 py-1.5 bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-700 transition-colors"
-              >
-                <RefreshCw className="w-3 h-3" /> Recarregar
-              </button>
-              <a
-                href={JIRA_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-200 px-2.5 py-1.5 bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-700 transition-colors"
-              >
-                <ExternalLink className="w-3 h-3" /> Abrir no Jira
-              </a>
-            </div>
-          </div>
-          <iframe
-            id="jira-frame"
-            src={JIRA_URL}
-            className="w-full flex-1 rounded-xl border border-gray-700 bg-white"
-            title="Criar Ticket DEV — Jira"
-            onError={() => setBlocked(true)}
+        <div>
+          <p className="text-sm font-semibold text-white">Space Asap Codes — Bug Form</p>
+          <p className="text-xs text-gray-500">Reporte um problema para o time de desenvolvimento</p>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="bg-gray-800 border border-gray-700 rounded-2xl p-6 space-y-5">
+        <div>
+          <label className="block text-xs font-semibold text-gray-300 mb-1.5">
+            Email <span className="text-red-400">*</span>
+          </label>
+          <input
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
+            className="w-full px-3 py-2.5 text-sm bg-gray-900 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-500"
+            placeholder="seu@email.com"
           />
-        </>
-      )}
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-gray-300 mb-1.5">
+            Título do Problema <span className="text-red-400">*</span>
+          </label>
+          <input
+            type="text"
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+            required
+            className="w-full px-3 py-2.5 text-sm bg-gray-900 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-500"
+            placeholder="Descreva brevemente o problema"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-gray-300 mb-1.5">
+            Descreva seu problema para que possamos solucionar <span className="text-red-400">*</span>
+          </label>
+          <textarea
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+            required
+            rows={5}
+            className="w-full px-3 py-2.5 text-sm bg-gray-900 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-500 resize-none"
+            placeholder="Explique o problema com o máximo de detalhes possível..."
+          />
+        </div>
+
+        {status === 'error' && (
+          <div className="flex items-center gap-2 p-3 bg-red-900/20 border border-red-700/40 rounded-lg text-xs text-red-400">
+            <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+            Erro ao criar ticket. Verifique sua conexão e tente novamente.
+          </div>
+        )}
+
+        <button
+          type="submit"
+          disabled={!canSubmit}
+          className="w-full flex items-center justify-center gap-2 py-3 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed rounded-xl transition-colors"
+        >
+          {status === 'submitting'
+            ? <><RefreshCw className="w-4 h-4 animate-spin" /> Enviando...</>
+            : <><Send className="w-4 h-4" /> Enviar</>}
+        </button>
+      </form>
     </div>
   );
 }

@@ -192,7 +192,7 @@ function AppInner() {
       case 'rotina':
         return <RotinaView currentUser={profile?.email ?? user.email ?? ''} isAdmin={isAdmin} />;
       case 'jira':
-        return <JiraView />;
+        return <JiraView currentUserEmail={profile?.email ?? user.email ?? ''} />;
       case 'whatsapp':
         return <WhatsAppView />;
       case 'admin':

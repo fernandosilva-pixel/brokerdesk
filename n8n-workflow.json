@@ -659,6 +659,64 @@
       }
     },
     {
+      "id": "wh-jira-create",
+      "name": "Webhook Jira — Criar Ticket",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 1900],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "jira-create",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "code-jira-format",
+      "name": "Jira — Formatar Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [520, 1900],
+      "parameters": {
+        "jsCode": "const _b = $input.first().json.body;\nconst d = typeof _b === 'string' ? JSON.parse(_b) : _b;\n\nconst email = d.email || 'sem-email@brokerdesk.com';\nconst title = d.title || 'Novo Bug';\nconst description = d.description || '';\n\n// Substitua pelo base64 de: email_atlassian:api_token\nconst auth = 'Basic ' + Buffer.from($env.JIRA_EMAIL + ':' + $env.JIRA_TOKEN).toString('base64');\n\nconst payload = {\n  fields: {\n    project: { key: 'MMT2' },\n    issuetype: { name: 'Bug' },\n    summary: title,\n    description: {\n      version: 1,\n      type: 'doc',\n      content: [\n        {\n          type: 'paragraph',\n          content: [{ type: 'text', text: 'Reportado por: ' + email, marks: [{ type: 'strong' }] }]\n        },\n        {\n          type: 'paragraph',\n          content: [{ type: 'text', text: description }]\n        }\n      ]\n    }\n  }\n};\n\nreturn [{ json: { auth, payload } }];"
+      }
+    },
+    {
+      "id": "http-jira-issue",
+      "name": "Jira — Criar Issue",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [800, 1900],
+      "parameters": {
+        "method": "POST",
+        "url": "https://asap-team.atlassian.net/rest/api/3/issue",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "={{ $json.auth }}" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Accept", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.payload) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "respond-jira",
+      "name": "Jira — Responder",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1080, 1900],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}"
+      }
+    },
+    {
       "id": "http-weekly-whatsapp",
       "name": "Relatório Semanal — Enviar WhatsApp",
       "type": "n8n-nodes-base.httpRequest",
@@ -926,6 +984,15 @@
           }
         ]
       ]
+    },
+    "Webhook Jira — Criar Ticket": {
+      "main": [[{ "node": "Jira — Formatar Payload", "type": "main", "index": 0 }]]
+    },
+    "Jira — Formatar Payload": {
+      "main": [[{ "node": "Jira — Criar Issue", "type": "main", "index": 0 }]]
+    },
+    "Jira — Criar Issue": {
+      "main": [[{ "node": "Jira — Responder", "type": "main", "index": 0 }]]
     }
   },
   "active": false,
