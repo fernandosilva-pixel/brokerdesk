@@ -1,7 +1,8 @@
+import { getWebhookUrl } from './settings';
+
 export const sendWebhook = async (payload: object): Promise<void> => {
   try {
-    const config = JSON.parse(localStorage.getItem('zapi_config') || '{}');
-    const url = config.n8nWebhookUrl as string | undefined;
+    const url = getWebhookUrl();
     if (!url) return;
     await fetch(url, {
       method: 'POST',

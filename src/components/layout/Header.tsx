@@ -8,6 +8,7 @@ const titles: Record<View, { title: string; subtitle: string }> = {
   dashboard: { title: 'Dashboard',        subtitle: 'Visão geral das demandas' },
   demandas:  { title: 'Demandas Tech',    subtitle: 'Tickets direcionados ao time de desenvolvimento' },
   rotina:    { title: 'Rotina Diária',    subtitle: 'Checklist de tarefas do dia' },
+  jira:      { title: 'Criar Ticket DEV', subtitle: 'Formulário de criação de tickets no Jira' },
   whatsapp:  { title: 'Alertas WhatsApp', subtitle: 'Notificações e configuração de alertas' },
   admin:     { title: 'Admin',            subtitle: 'Gerenciamento de brokers e notificações' },
 };

@@ -2,10 +2,10 @@ import React from 'react';
 import {
   LayoutDashboard, Code2, CheckSquare,
   MessageCircle, Settings, ChevronLeft, ChevronRight,
-  ShieldCheck, LogOut, X,
+  ShieldCheck, LogOut, X, Kanban,
 } from 'lucide-react';
 
-export type View = 'dashboard' | 'demandas' | 'rotina' | 'whatsapp' | 'admin';
+export type View = 'dashboard' | 'demandas' | 'rotina' | 'whatsapp' | 'admin' | 'jira';
 
 interface SidebarProps {
   activeView: View;
@@ -22,6 +22,7 @@ const navItems: { id: View; label: string; Icon: React.ElementType; adminOnly?: 
   { id: 'dashboard', label: 'Dashboard',       Icon: LayoutDashboard },
   { id: 'demandas',  label: 'Demandas Tech',    Icon: Code2 },
   { id: 'rotina',    label: 'Rotina Diária',    Icon: CheckSquare },
+  { id: 'jira',      label: 'Criar Ticket DEV', Icon: Kanban },
   { id: 'whatsapp',  label: 'Alertas WhatsApp', Icon: MessageCircle, adminOnly: true },
   { id: 'admin',     label: 'Admin',            Icon: ShieldCheck, adminOnly: true },
 ];

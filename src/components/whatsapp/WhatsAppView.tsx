@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { loadWebhookUrl, saveWebhookUrl, getWebhookUrl } from '../../lib/settings';
 import {
   MessageCircle, Send, Settings2, CheckCircle2, AlertTriangle,
   RefreshCw, Bell, Clock, Plus, Trash2, X, QrCode, Phone,
@@ -61,8 +62,17 @@ type ConnStatus = 'unknown' | 'connected' | 'disconnected' | 'checking';
 export default function WhatsAppView() {
   const [activeTab, setActiveTab] = useState<Tab>('config');
   const [config, setConfig] = useState<ZApiConfig>(() => {
-    try { return JSON.parse(localStorage.getItem('zapi_config') || '{}'); } catch { return {}; }
+    try {
+      const saved = JSON.parse(localStorage.getItem('zapi_config') || '{}');
+      return { ...saved, n8nWebhookUrl: getWebhookUrl() || saved.n8nWebhookUrl || '' };
+    } catch { return {}; }
   });
+
+  useEffect(() => {
+    loadWebhookUrl().then(() => {
+      setConfig(prev => ({ ...prev, n8nWebhookUrl: getWebhookUrl() }));
+    });
+  }, []);
   const [templates, setTemplates] = useState<AlertTemplate[]>(DEFAULT_TEMPLATES);
   const [sent, setSent] = useState<SentAlert[]>([]);
   const [connStatus, setConnStatus] = useState<ConnStatus>('unknown');
@@ -145,8 +155,10 @@ export default function WhatsAppView() {
   const [saveMsg, setSaveMsg] = useState('');
   const [webhookTestMsg, setWebhookTestMsg] = useState('');
 
-  const saveConfig = () => {
-    localStorage.setItem('zapi_config', JSON.stringify(config));
+  const saveConfig = async () => {
+    const { n8nWebhookUrl, ...zapiFields } = config;
+    localStorage.setItem('zapi_config', JSON.stringify(zapiFields));
+    await saveWebhookUrl(n8nWebhookUrl || '');
     setSaveMsg('✅ Configuração salva!');
     setTimeout(() => setSaveMsg(''), 3000);
     checkStatus();

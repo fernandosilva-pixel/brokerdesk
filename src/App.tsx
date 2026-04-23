@@ -6,6 +6,7 @@ import DashboardView from './components/dashboard/DashboardView';
 import DemandasTechView from './components/demandas-tech/DemandasTechView';
 import RotinaView from './components/rotina/RotinaView';
 import WhatsAppView from './components/whatsapp/WhatsAppView';
+import JiraView from './components/jira/JiraView';
 import AdminView from './components/admin/AdminView';
 import LoginView from './components/auth/LoginView';
 import OverdueAlert from './components/common/OverdueAlert';
@@ -13,6 +14,7 @@ import { AuthProvider, useAuth } from './hooks/useAuth';
 import { ThemeProvider } from './hooks/useTheme';
 import { supabase } from './lib/supabase';
 import { sendWebhook } from './lib/webhook';
+import { loadWebhookUrl } from './lib/settings';
 import { isOverdue, daysAgo } from './lib/ticketUtils';
 import type { Broker, Ticket } from './data/brokers';
 import type { BrokerRow, TicketRow } from './lib/supabase';
@@ -53,6 +55,7 @@ function AppInner() {
     const [{ data: bData }, { data: tData }] = await Promise.all([
       supabase.from('brokers').select('*').eq('ativo', true).order('nome'),
       supabase.from('tickets').select('*').order('created_at', { ascending: false }),
+      loadWebhookUrl(),
     ]);
     const loadedBrokers = (bData ?? []).map(brokerFromRow);
     setBrokers(loadedBrokers);
@@ -188,6 +191,8 @@ function AppInner() {
         return <DemandasTechView tickets={tickets} onUpdateTicket={onUpdateTicket} />;
       case 'rotina':
         return <RotinaView currentUser={profile?.email ?? user.email ?? ''} isAdmin={isAdmin} />;
+      case 'jira':
+        return <JiraView />;
       case 'whatsapp':
         return <WhatsAppView />;
       case 'admin':

@@ -145,6 +145,32 @@ drop policy if exists "Admins can delete notifications" on public.notifications;
 create policy "Admins can delete notifications"
   on public.notifications for delete using (public.is_admin());
 
+-- 8. APP_SETTINGS (configurações globais centralizadas)
+create table if not exists public.app_settings (
+  key text primary key,
+  value text not null default '',
+  updated_at timestamptz default now()
+);
+
+-- Seed com a chave do webhook
+insert into public.app_settings (key, value)
+values ('n8n_webhook_url', '')
+on conflict (key) do nothing;
+
+alter table public.app_settings enable row level security;
+
+drop policy if exists "Authenticated can read settings" on public.app_settings;
+create policy "Authenticated can read settings"
+  on public.app_settings for select to authenticated using (true);
+
+drop policy if exists "Admins can update settings" on public.app_settings;
+create policy "Admins can update settings"
+  on public.app_settings for update using (public.is_admin());
+
+drop policy if exists "Admins can insert settings" on public.app_settings;
+create policy "Admins can insert settings"
+  on public.app_settings for insert with check (public.is_admin());
+
 -- ============================================================
 -- APÓS EXECUTAR:
 -- 1. Crie sua conta no app
