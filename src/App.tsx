@@ -14,7 +14,7 @@ import { AuthProvider, useAuth } from './hooks/useAuth';
 import { ThemeProvider } from './hooks/useTheme';
 import { supabase } from './lib/supabase';
 import { sendWebhook } from './lib/webhook';
-import { loadWebhookUrl } from './lib/settings';
+import { loadWebhookUrl, loadJiraAuth } from './lib/settings';
 import { isOverdue, daysAgo } from './lib/ticketUtils';
 import type { Broker, Ticket } from './data/brokers';
 import type { BrokerRow, TicketRow } from './lib/supabase';
@@ -56,6 +56,7 @@ function AppInner() {
       supabase.from('brokers').select('*').eq('ativo', true).order('nome'),
       supabase.from('tickets').select('*').order('created_at', { ascending: false }),
       loadWebhookUrl(),
+      loadJiraAuth(),
     ]);
     const loadedBrokers = (bData ?? []).map(brokerFromRow);
     setBrokers(loadedBrokers);

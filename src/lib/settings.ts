@@ -19,3 +19,16 @@ export const saveWebhookUrl = async (url: string): Promise<void> => {
 };
 
 export const getWebhookUrl = (): string => cachedWebhookUrl;
+
+let cachedJiraAuth = '';
+
+export const loadJiraAuth = async (): Promise<void> => {
+  const { data } = await supabase
+    .from('app_settings')
+    .select('value')
+    .eq('key', 'jira_auth')
+    .single();
+  cachedJiraAuth = data?.value ?? '';
+};
+
+export const getJiraAuth = (): string => cachedJiraAuth;

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Kanban, Send, CheckCircle2, AlertTriangle, RefreshCw } from 'lucide-react';
+import { getJiraAuth } from '../../lib/settings';
 
-const JIRA_WEBHOOK = 'https://gregsupport.app.n8n.cloud/webhook/jira-create';
+const JIRA_URL = 'https://asap-team.atlassian.net/rest/api/3/issue';
 
 interface Props {
   currentUserEmail: string;
@@ -22,13 +23,36 @@ export default function JiraView({ currentUserEmail }: Props) {
     if (!canSubmit) return;
     setStatus('submitting');
     try {
-      const res = await fetch(JIRA_WEBHOOK, {
+      const res = await fetch(JIRA_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, title, description }),
+        headers: {
+          'Authorization': `Basic ${getJiraAuth()}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          fields: {
+            project: { key: 'MMT2' },
+            issuetype: { name: 'Bug' },
+            summary: title,
+            description: {
+              version: 1,
+              type: 'doc',
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [{ type: 'text', text: `Reportado por: ${email}`, marks: [{ type: 'strong' }] }],
+                },
+                {
+                  type: 'paragraph',
+                  content: [{ type: 'text', text: description }],
+                },
+              ],
+            },
+          },
+        }),
       });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok && data.key) {
+      if (res.ok) {
         setStatus('success');
         setTitle('');
         setDescription('');
